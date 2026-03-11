@@ -19,5 +19,5 @@ public final class Ports {
 
     // PWM Ports
     public static final int kHoodLeftServo = 3;
-    public static final int kHoodRightServo = 4;
+    public static final int kHoodRightServo = 5;
 }

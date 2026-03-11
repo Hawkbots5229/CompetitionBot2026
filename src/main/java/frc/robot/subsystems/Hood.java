@@ -20,7 +20,7 @@ import frc.robot.Ports;
 
 public class Hood extends SubsystemBase {
     private static final Distance kServoLength = Millimeters.of(100);
-    private static final LinearVelocity kMaxServoSpeed = Millimeters.of(20).per(Second);
+    private static final LinearVelocity kMaxServoSpeed = Millimeters.of(30.9).per(Second);
     private static final double kMinPosition = 0.01;
     private static final double kMaxPosition = 0.77;
     private static final double kPositionTolerance = 0.01;
@@ -28,8 +28,8 @@ public class Hood extends SubsystemBase {
     private final Servo leftServo;
     private final Servo rightServo;
 
-    private double currentPosition = 0.5;
-    private double targetPosition = 0.5;
+    private double currentPosition = 0.01;
+    private double targetPosition = 0.01;
     private Time lastUpdateTime = Seconds.of(0);
 
     public Hood() {
@@ -39,6 +39,10 @@ public class Hood extends SubsystemBase {
         rightServo.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
         setPosition(currentPosition);
         SmartDashboard.putData(this);
+    }
+
+    public double getTargetPosition() {
+        return targetPosition;
     }
 
     /** Expects a position between 0.0 and 1.0 */
@@ -51,6 +55,7 @@ public class Hood extends SubsystemBase {
 
     /** Expects a position between 0.0 and 1.0 */
     public Command positionCommand(double position) {
+        
         return runOnce(() -> setPosition(position))
             .andThen(Commands.waitUntil(this::isPositionWithinTolerance));
     }

@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.KrakenX60;
 import frc.robot.Ports;
+import frc.robot.RobotContainer;
 
 public class Shooter extends SubsystemBase {
     private static final AngularVelocity kVelocityTolerance = RPM.of(100);
@@ -35,16 +36,16 @@ public class Shooter extends SubsystemBase {
     private final VelocityVoltage velocityRequest = new VelocityVoltage(0).withSlot(0);
     private final VoltageOut voltageRequest = new VoltageOut(0);
 
-    private double dashboardTargetRPM = 0.0;
+    private double dashboardTargetRPM = 3000.0;
 
     public Shooter() {
-        leftMotor = new TalonFX(Ports.kShooterLeft, Ports.kCANivoreCANBus);
-        middleMotor = new TalonFX(Ports.kShooterMiddle, Ports.kCANivoreCANBus);
-        rightMotor = new TalonFX(Ports.kShooterRight, Ports.kCANivoreCANBus);
+        leftMotor = new TalonFX(Ports.kShooterLeft, Ports.kRoboRioCANBus);
+        middleMotor = new TalonFX(Ports.kShooterMiddle, Ports.kRoboRioCANBus);
+        rightMotor = new TalonFX(Ports.kShooterRight, Ports.kRoboRioCANBus);
         motors = List.of(leftMotor, middleMotor, rightMotor);
 
         configureMotor(leftMotor, InvertedValue.CounterClockwise_Positive);
-        configureMotor(middleMotor, InvertedValue.Clockwise_Positive);
+        configureMotor(middleMotor, InvertedValue.CounterClockwise_Positive);
         configureMotor(rightMotor, InvertedValue.Clockwise_Positive);
 
         SmartDashboard.putData(this);
@@ -59,7 +60,7 @@ public class Shooter extends SubsystemBase {
             )
             .withVoltage(
                 new VoltageConfigs()
-                    .withPeakReverseVoltage(Volts.of(0))
+                    .withPeakReverseVoltage(Volts.of(-12))
             )
             .withCurrentLimits(
                 new CurrentLimitsConfigs()
@@ -117,6 +118,16 @@ public class Shooter extends SubsystemBase {
             final AngularVelocity targetVelocity = velocityRequest.getVelocityMeasure();
             return isInVelocityMode && currentVelocity.isNear(targetVelocity, kVelocityTolerance);
         });
+    }
+
+    public double getDashboardTargetRPM() {
+
+        return dashboardTargetRPM;
+    }
+    
+    public void setDashboardTargetRPM(double targetRPM){
+
+        dashboardTargetRPM = targetRPM;
     }
 
     private void initSendable(SendableBuilder builder, TalonFX motor, String name) {

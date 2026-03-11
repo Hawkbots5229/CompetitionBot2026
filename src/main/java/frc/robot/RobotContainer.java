@@ -8,16 +8,22 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import java.util.Optional;
 
+import com.ctre.phoenix6.SignalLogger;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Driving;
 import frc.robot.commands.AutoRoutines;
 import frc.robot.commands.ManualDriveCommand;
+import frc.robot.commands.ManualHoodCommand;
+import frc.robot.commands.ReverseColumnCommand;
+import frc.robot.commands.SetShooterCommand;
 import frc.robot.commands.SubsystemCommands;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Floor;
@@ -38,16 +44,20 @@ import frc.util.SwerveTelemetry;
 public class RobotContainer {
     private final Swerve swerve = new Swerve();
     private final Intake intake = new Intake();
-    private final Floor floor = new Floor();
-    private final Feeder feeder = new Feeder();
-    private final Shooter shooter = new Shooter();
-    private final Hood hood = new Hood();
+    private static Floor floor = new Floor();
+    private static Feeder feeder = new Feeder();
+    private static Shooter shooter = new Shooter();
+    private static Hood hood = new Hood();
     private final Hanger hanger = new Hanger();
     private final Limelight limelight = new Limelight("limelight");
 
+    private static ManualHoodCommand hoodDefaultCommand = new ManualHoodCommand(hood);
+    private static SetShooterCommand setShooterCommand = new SetShooterCommand(shooter);
+    private static ReverseColumnCommand reverseColumnCommand = new ReverseColumnCommand(feeder,floor, shooter);
     private final SwerveTelemetry swerveTelemetry = new SwerveTelemetry(Driving.kMaxSpeed.in(MetersPerSecond));
     
-    private final CommandXboxController driver = new CommandXboxController(0);
+    public static CommandXboxController driver = new CommandXboxController(0);
+    public static CommandXboxController mech = new CommandXboxController(1);
 
     private final AutoRoutines autoRoutines = new AutoRoutines(
         swerve,
@@ -73,9 +83,12 @@ public class RobotContainer {
     
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
+        SignalLogger.enableAutoLogging(false);
         configureBindings();
         autoRoutines.configure();
         swerve.registerTelemetry(swerveTelemetry::telemeterize);
+        hood.setDefaultCommand(hoodDefaultCommand);
+        shooter.setDefaultCommand(setShooterCommand);
     }
     
     /**
@@ -95,11 +108,12 @@ public class RobotContainer {
             .onTrue(intake.homingCommand())
             .onTrue(hanger.homingCommand());
 
-        driver.rightTrigger().whileTrue(subsystemCommands.aimAndShoot());
-        driver.rightBumper().whileTrue(subsystemCommands.shootManually());
-        driver.leftTrigger().whileTrue(intake.intakeCommand());
-        driver.leftBumper().onTrue(intake.runOnce(() -> intake.set(Intake.Position.STOWED)));
-
+        mech.rightTrigger().whileTrue(subsystemCommands.aimAndShoot());
+        mech.rightBumper().whileTrue(subsystemCommands.shootManually());
+        mech.leftTrigger().whileTrue(intake.intakeCommand());
+        mech.leftBumper().onTrue(intake.runOnce(() -> intake.set(Intake.Position.STOWED)));
+        mech.a().whileTrue(reverseColumnCommand);
+        
         driver.povUp().onTrue(hanger.positionCommand(Hanger.Position.HANGING));
         driver.povDown().onTrue(hanger.positionCommand(Hanger.Position.HUNG));
     }

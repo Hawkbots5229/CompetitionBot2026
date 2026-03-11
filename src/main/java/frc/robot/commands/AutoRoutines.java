@@ -76,7 +76,7 @@ public final class AutoRoutines {
         final AutoTrajectory startToOutpost = OutpostAndDepotTrajectory$0.asAutoTraj(routine);
         final AutoTrajectory outpostToDepot = OutpostAndDepotTrajectory$1.asAutoTraj(routine);
         final AutoTrajectory depotToShootingPose = OutpostAndDepotTrajectory$2.asAutoTraj(routine);
-        final AutoTrajectory shootingPoseToTower = OutpostAndDepotTrajectory$3.asAutoTraj(routine);
+        //final AutoTrajectory shootingPoseToTower = OutpostAndDepotTrajectory$3.asAutoTraj(routine);
 
         routine.active().onTrue(
             Commands.sequence(
@@ -104,6 +104,15 @@ public final class AutoRoutines {
                 hood.positionCommand(0.32)
             )
         );
+
+        depotToShootingPose.done().onTrue(
+            Commands.sequence(
+                subsystemCommands.aimAndShoot()
+                    .withTimeout(5)
+            )
+        );
+
+        /*
         depotToShootingPose.done().onTrue(
             Commands.sequence(
                 subsystemCommands.aimAndShoot()
@@ -115,7 +124,7 @@ public final class AutoRoutines {
         shootingPoseToTower.active().whileTrue(limelight.idle());
         shootingPoseToTower.active().onTrue(hanger.positionCommand(Hanger.Position.HANGING));
         shootingPoseToTower.done().onTrue(hanger.positionCommand(Hanger.Position.HUNG));
-
+        */
         return routine;
     }
 }

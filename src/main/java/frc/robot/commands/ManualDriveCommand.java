@@ -12,6 +12,8 @@ import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.Driving;
 import frc.robot.subsystems.Swerve;
@@ -38,6 +40,7 @@ public class ManualDriveCommand extends Command {
     private final Swerve swerve;
     private final DriveInputSmoother inputSmoother;
     private final SwerveRequest.Idle idleRequest = new SwerveRequest.Idle();
+    private final Field2d m_field = new Field2d();
 
     private final SwerveRequest.FieldCentric fieldCentricRequest = new SwerveRequest.FieldCentric()
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
@@ -138,6 +141,8 @@ public class ManualDriveCommand extends Command {
                 );
                 break;
         }
+        SmartDashboard.putData("Field", m_field);
+        m_field.setRobotPose(swerve.getState().Pose);
     }
 
     @Override

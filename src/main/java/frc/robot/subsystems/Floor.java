@@ -39,7 +39,7 @@ public class Floor extends SubsystemBase {
     private final VoltageOut voltageRequest = new VoltageOut(0);
 
     public Floor() {
-        motor = new TalonFX(Ports.kFloor, Ports.kCANivoreCANBus);
+        motor = new TalonFX(Ports.kFloor, Ports.kRoboRioCANBus);
 
         final TalonFXConfiguration config = new TalonFXConfiguration()
             .withMotorOutput(
@@ -63,6 +63,13 @@ public class Floor extends SubsystemBase {
         motor.setControl(
             voltageRequest
                 .withOutput(speed.voltage())
+        );
+    }
+
+    public void setPercentOutput(double percentOutput) {
+        motor.setControl(
+            voltageRequest
+                .withOutput(Volts.of(percentOutput * 12.0))
         );
     }
 
