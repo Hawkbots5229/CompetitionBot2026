@@ -121,9 +121,9 @@ public class RobotContainer {
     private void configureManualDriveBindings() {
         final ManualDriveCommand manualDriveCommand = new ManualDriveCommand(
             swerve, 
-            () -> -driver.getLeftY(), 
-            () -> -driver.getLeftX(), 
-            () -> -driver.getRightX()
+            () -> -driver.getLeftY()*Math.max(0.1, 1.0-driver.getLeftTriggerAxis()), 
+            () -> -driver.getLeftX()*Math.max(0.1, 1.0-driver.getLeftTriggerAxis()), 
+            () -> -driver.getRightX()*Math.max(0.1, 1.0-(driver.getLeftTriggerAxis()*1.5))
         );
         swerve.setDefaultCommand(manualDriveCommand);
         driver.a().onTrue(Commands.runOnce(() -> manualDriveCommand.setLockedHeading(Rotation2d.k180deg)));

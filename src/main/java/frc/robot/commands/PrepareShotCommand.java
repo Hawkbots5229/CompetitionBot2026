@@ -32,9 +32,12 @@ public class PrepareShotCommand extends Command {
     );
 
     static {
-        distanceToShotMap.put(Inches.of(52.0), new Shot(2800, 0.19));
-        distanceToShotMap.put(Inches.of(114.4), new Shot(3275, 0.40));
-        distanceToShotMap.put(Inches.of(165.5), new Shot(3650, 0.48));
+        //distanceToShotMap.put(Inches.of(52.0), new Shot(2800, 0.19));
+        //distanceToShotMap.put(Inches.of(114.4), new Shot(3275, 0.40));
+        //distanceToShotMap.put(Inches.of(165.5), new Shot(3650, 0.48));
+        distanceToShotMap.put(Inches.of(52.0), new Shot(3900, 0.24));
+        distanceToShotMap.put(Inches.of(114.4), new Shot(4375, 0.45));
+        distanceToShotMap.put(Inches.of(165.5), new Shot(4750, 0.53));
     }
 
     private final Shooter shooter;
@@ -63,6 +66,7 @@ public class PrepareShotCommand extends Command {
         final Distance distanceToHub = getDistanceToHub();
         final Shot shot = distanceToShotMap.get(distanceToHub);
         shooter.setRPM(shot.shooterRPM);
+        shooter.setDashboardTargetRPM(shot.shooterRPM);
         hood.setPosition(shot.hoodPosition);
         SmartDashboard.putNumber("Distance to Hub (inches)", distanceToHub.in(Inches));
     }

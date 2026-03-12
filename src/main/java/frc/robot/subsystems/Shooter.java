@@ -29,7 +29,7 @@ import frc.robot.Ports;
 import frc.robot.RobotContainer;
 
 public class Shooter extends SubsystemBase {
-    private static final AngularVelocity kVelocityTolerance = RPM.of(100);
+    private static final AngularVelocity kVelocityTolerance = RPM.of(50);
 
     private final TalonFX leftMotor, middleMotor, rightMotor;
     private final List<TalonFX> motors;
