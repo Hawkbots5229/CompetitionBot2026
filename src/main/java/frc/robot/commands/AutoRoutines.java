@@ -163,46 +163,31 @@ public final class AutoRoutines {
             Commands.sequence(
                 startToShootingPose.resetOdometry(),
                 startToShootingPose.cmd()
-            )
+            )    
         );
-
-        routine.observe(hanger::isHomed).onTrue(
-            Commands.sequence(
-                Commands.waitSeconds(5.0),
-                intake.runOnce(() -> intake.set(Intake.Position.INTAKE))
-            )
-        );
-
-        startToShootingPose.active().whileTrue(limelight.idle());
-        startToShootingPose.atTime(0.5).onTrue(
-            Commands.parallel(
-                shooter.spinUpCommand(3600),
-                hood.positionCommand(0.25)
-            )
-        );
-
-        startToShootingPose.done().onTrue(
-            Commands.parallel(
-                Commands.waitSeconds(0.5)
-                    .andThen(prepareShotCommand),
-                Commands.waitUntil(() -> prepareShotCommand.isReadyToShoot())
-                    .andThen(feed())
-            )
-        );
-
         
+        startToShootingPose.active().whileTrue(limelight.idle());
+        startToShootingPose.done().and(hanger::isHomed).onTrue(
+            Commands.sequence(
+                Commands.waitSeconds(0.5),
+                intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
+                Commands.parallel(
+                    prepareShotCommand,
+                    Commands.waitUntil(prepareShotCommand::isReadyToShoot)
+                        .andThen(feed())
+                )
+            )
+        );        
         
         return routine;
     }
 
     private Command feed() {
-        return Commands.sequence(
-            Commands.waitSeconds(1.0),
+        return 
             Commands.parallel(
                 feeder.feedCommand(),
                 Commands.waitSeconds(0.125)
                     .andThen(floor.feedCommand().alongWith(intake.agitateCommand()))
-            )
-        );
+            );
     }
 }
