@@ -167,14 +167,17 @@ public final class AutoRoutines {
         );
         
         startToShootingPose.active().whileTrue(limelight.idle());
-        startToShootingPose.done().and(hanger::isHomed).onTrue(
-            Commands.sequence(
-                Commands.waitSeconds(0.5),
-                intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
-                Commands.parallel(
-                    prepareShotCommand,
-                    Commands.waitUntil(prepareShotCommand::isReadyToShoot)
-                        .andThen(feed())
+        
+        startToShootingPose.done().onTrue(
+            Commands.waitUntil(hanger::isHomed).andThen(
+                Commands.sequence(
+                    Commands.waitSeconds(0.5),
+                    intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
+                    Commands.parallel(
+                        prepareShotCommand,
+                        Commands.waitUntil(prepareShotCommand::isReadyToShoot)
+                            .andThen(feed())
+                    )
                 )
             )
         );        

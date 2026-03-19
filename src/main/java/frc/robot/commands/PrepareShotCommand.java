@@ -52,7 +52,6 @@ public class PrepareShotCommand extends Command {
     }
 
     public boolean isReadyToShoot() {
-        System.out.println("IsReady: " + (shooter.isVelocityWithinTolerance() && hood.isPositionWithinTolerance()));
         return shooter.isVelocityWithinTolerance() && hood.isPositionWithinTolerance();
     }
 
