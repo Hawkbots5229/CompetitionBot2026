@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import static frc.robot.generated.ChoreoTraj.OutpostTrajectory$0;
 import static frc.robot.generated.ChoreoTraj.OutpostTrajectory$1;
+import static frc.robot.generated.ChoreoTraj.OutpostTrajectory$2;
 import static frc.robot.generated.ChoreoTraj.MiddleTrajectory;
 
 import choreo.auto.AutoChooser;
@@ -21,6 +22,7 @@ import frc.robot.subsystems.Floor;
 import frc.robot.subsystems.Hanger;
 import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Intake.Speed;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Swerve;
@@ -75,7 +77,8 @@ public final class AutoRoutines {
     private AutoRoutine outpostRoutine() {
         final AutoRoutine routine = autoFactory.newRoutine("Outpost");
         final AutoTrajectory startToOutpostPose = OutpostTrajectory$0.asAutoTraj(routine);
-        final AutoTrajectory outpostToShootingPose = OutpostTrajectory$1.asAutoTraj(routine);
+        final AutoTrajectory outpostToCollectPose = OutpostTrajectory$1.asAutoTraj(routine);
+        final AutoTrajectory collectToShootingPose = OutpostTrajectory$2.asAutoTraj(routine);
         final PrepareShotCommand prepareShotCommand = new PrepareShotCommand(shooter, hood, () -> swerve.getState().Pose);
 
         routine.active().onTrue(
@@ -92,24 +95,21 @@ public final class AutoRoutines {
                 Commands.sequence(
                     Commands.waitSeconds(1.0),
                     intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
-                    outpostToShootingPose.cmd())
+                    outpostToCollectPose.cmd())
             )
         );
 
-        outpostToShootingPose.active().whileTrue(limelight.idle());
-        outpostToShootingPose.atTimeBeforeEnd(1.0).onTrue(intake.intakeCommand());
-
-        outpostToShootingPose.done().onTrue(
-            Commands.waitUntil(hanger::isHomed).andThen(
-                Commands.sequence(
-                    Commands.waitSeconds(0.5),
-                    intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
-                    Commands.parallel(
-                        prepareShotCommand,
-                        Commands.waitUntil(prepareShotCommand::isReadyToShoot)
-                            .andThen(feed())
-                    )
-                )
+        outpostToCollectPose.active().onTrue(intake.runOnce(() -> intake.set(Intake.Speed.INTAKE)));
+        outpostToCollectPose.active().whileTrue(limelight.idle());
+        outpostToCollectPose.done().onTrue(collectToShootingPose.cmd());
+        
+        collectToShootingPose.active().onTrue(intake.runOnce(() -> intake.set(Intake.Speed.STOP)));
+        collectToShootingPose.active().whileTrue(limelight.idle());
+        collectToShootingPose.done().onTrue(
+            Commands.parallel(
+                prepareShotCommand,
+                Commands.waitUntil(prepareShotCommand::isReadyToShoot)
+                    .andThen(feed())
             )
         );
         
