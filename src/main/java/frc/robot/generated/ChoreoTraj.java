@@ -24,29 +24,6 @@ public record ChoreoTraj(
     Pose2d initialPoseBlue,
     Pose2d endPoseBlue
 ) {
-    public static final ChoreoTraj DepotTrajectory = new ChoreoTraj(
-        "DepotTrajectory",
-        OptionalInt.empty(),
-        2.81744,
-        new Pose2d(3.59816, 0.63985, Rotation2d.fromRadians(3.14159)),
-        new Pose2d(2.23139, 1.76198, Rotation2d.fromRadians(0.7854))
-    );
-    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
-    public static final ChoreoTraj DepotTrajectory$0 = new ChoreoTraj(
-        "DepotTrajectory",
-        OptionalInt.of(0),
-        1.28906,
-        new Pose2d(3.59816, 0.63985, Rotation2d.fromRadians(3.14159)),
-        new Pose2d(0.58146, 0.6689, Rotation2d.fromRadians(3.14159))
-    );
-    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
-    public static final ChoreoTraj DepotTrajectory$1 = new ChoreoTraj(
-        "DepotTrajectory",
-        OptionalInt.of(1),
-        1.5283799999999998,
-        new Pose2d(0.58146, 0.6689, Rotation2d.fromRadians(3.14159)),
-        new Pose2d(2.23139, 1.76198, Rotation2d.fromRadians(0.7854))
-    );
     public static final ChoreoTraj MiddleTrajectory = new ChoreoTraj(
         "MiddleTrajectory",
         OptionalInt.empty(),
@@ -54,67 +31,28 @@ public record ChoreoTraj(
         new Pose2d(3.55124, 4, Rotation2d.fromRadians(0)),
         new Pose2d(2.1869, 4, Rotation2d.fromRadians(0))
     );
-    public static final ChoreoTraj OutpostAndDepotTrajectory_copy1 = new ChoreoTraj(
-        "OutpostAndDepotTrajectory_copy1",
-        OptionalInt.empty(),
-        11.3563,
-        new Pose2d(3.59816, 0.63985, Rotation2d.fromRadians(3.14159)),
-        new Pose2d(0.94136, 3.56436, Rotation2d.fromRadians(3.14159))
-    );
-    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
-    public static final ChoreoTraj OutpostAndDepotTrajectory_copy1$0 = new ChoreoTraj(
-        "OutpostAndDepotTrajectory_copy1",
-        OptionalInt.of(0),
-        1.81742,
-        new Pose2d(3.59816, 0.63985, Rotation2d.fromRadians(3.14159)),
-        new Pose2d(0.58146, 0.6689, Rotation2d.fromRadians(3.14159))
-    );
-    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
-    public static final ChoreoTraj OutpostAndDepotTrajectory_copy1$1 = new ChoreoTraj(
-        "OutpostAndDepotTrajectory_copy1",
-        OptionalInt.of(1),
-        3.40099,
-        new Pose2d(0.58146, 0.6689, Rotation2d.fromRadians(3.14159)),
-        new Pose2d(0.66833, 5.96377, Rotation2d.fromRadians(3.14159))
-    );
-    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
-    public static final ChoreoTraj OutpostAndDepotTrajectory_copy1$2 = new ChoreoTraj(
-        "OutpostAndDepotTrajectory_copy1",
-        OptionalInt.of(2),
-        2.5827799999999996,
-        new Pose2d(0.66833, 5.96377, Rotation2d.fromRadians(3.14159)),
-        new Pose2d(2.49839, 4.03528, Rotation2d.fromRadians(0))
-    );
-    /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
-    public static final ChoreoTraj OutpostAndDepotTrajectory_copy1$3 = new ChoreoTraj(
-        "OutpostAndDepotTrajectory_copy1",
-        OptionalInt.of(3),
-        3.555109999999999,
-        new Pose2d(2.49839, 4.03528, Rotation2d.fromRadians(0)),
-        new Pose2d(0.94136, 3.56436, Rotation2d.fromRadians(3.14159))
-    );
     public static final ChoreoTraj OutpostTrajectory = new ChoreoTraj(
         "OutpostTrajectory",
         OptionalInt.empty(),
-        2.82688,
-        new Pose2d(3.62083, 5.95325, Rotation2d.fromRadians(3.14159)),
-        new Pose2d(2.33711, 4.98509, Rotation2d.fromRadians(-0.43633))
+        7.08528,
+        new Pose2d(3.61561, 6, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(2.99117, 4.45751, Rotation2d.fromRadians(-0.43633))
     );
     /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
     public static final ChoreoTraj OutpostTrajectory$0 = new ChoreoTraj(
         "OutpostTrajectory",
         OptionalInt.of(0),
-        1.23067,
-        new Pose2d(3.62083, 5.95325, Rotation2d.fromRadians(3.14159)),
-        new Pose2d(0.85713, 5.95, Rotation2d.fromRadians(3.14159))
+        1.15231,
+        new Pose2d(3.61561, 6, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(1.18882, 6, Rotation2d.fromRadians(3.14159))
     );
     /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
     public static final ChoreoTraj OutpostTrajectory$1 = new ChoreoTraj(
         "OutpostTrajectory",
         OptionalInt.of(1),
-        1.5962100000000001,
-        new Pose2d(0.85713, 5.95, Rotation2d.fromRadians(3.14159)),
-        new Pose2d(2.33711, 4.98509, Rotation2d.fromRadians(-0.43633))
+        5.93297,
+        new Pose2d(1.18882, 6, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(2.99117, 4.45751, Rotation2d.fromRadians(-0.43633))
     );
 
     /**
@@ -122,15 +60,7 @@ public record ChoreoTraj(
      * This allows for trajectory data to be looked up with strings during runtime.
      */
     public static final Map<String, ChoreoTraj> ALL_TRAJECTORIES = Map.ofEntries(
-        Map.entry("DepotTrajectory", DepotTrajectory),
-        Map.entry("DepotTrajectory$0", DepotTrajectory$0),
-        Map.entry("DepotTrajectory$1", DepotTrajectory$1),
         Map.entry("MiddleTrajectory", MiddleTrajectory),
-        Map.entry("OutpostAndDepotTrajectory_copy1", OutpostAndDepotTrajectory_copy1),
-        Map.entry("OutpostAndDepotTrajectory_copy1$0", OutpostAndDepotTrajectory_copy1$0),
-        Map.entry("OutpostAndDepotTrajectory_copy1$1", OutpostAndDepotTrajectory_copy1$1),
-        Map.entry("OutpostAndDepotTrajectory_copy1$2", OutpostAndDepotTrajectory_copy1$2),
-        Map.entry("OutpostAndDepotTrajectory_copy1$3", OutpostAndDepotTrajectory_copy1$3),
         Map.entry("OutpostTrajectory", OutpostTrajectory),
         Map.entry("OutpostTrajectory$0", OutpostTrajectory$0),
         Map.entry("OutpostTrajectory$1", OutpostTrajectory$1)
