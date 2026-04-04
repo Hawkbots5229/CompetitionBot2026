@@ -6,6 +6,8 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.numbers.N2;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.RobotContainer;
 
 public class DriveInputSmoother {
     private static final double kJoystickDeadband = 0.15;
@@ -26,11 +28,13 @@ public class DriveInputSmoother {
     }
 
     public ManualDriveInput getSmoothedInput() { 
-        final Vector<N2> rawTranslationInput = VecBuilder.fill(forwardInput.getAsDouble(), leftInput.getAsDouble());
+        double driveScale = Math.max(0.3, 1.0-(RobotContainer.driver.getLeftTriggerAxis()*0.4)-(RobotContainer.driver.getRightTriggerAxis()*0.4));
+        SmartDashboard.putNumber("DriveScale", driveScale);
+        final Vector<N2> rawTranslationInput = VecBuilder.fill(forwardInput.getAsDouble()*driveScale, leftInput.getAsDouble()*driveScale);
         final Vector<N2> deadbandedTranslationInput = MathUtil.applyDeadband(rawTranslationInput, kJoystickDeadband);
         final Vector<N2> curvedTranslationInput = MathUtil.copyDirectionPow(deadbandedTranslationInput, kCurveExponent);
 
-        final double rawRotationInput = rotationInput.getAsDouble();
+        final double rawRotationInput = rotationInput.getAsDouble()*driveScale;
         final double deadbandedRotationInput = MathUtil.applyDeadband(rawRotationInput, kJoystickDeadband);
         final double curvedRotationInput = MathUtil.copyDirectionPow(deadbandedRotationInput, kCurveExponent);
 

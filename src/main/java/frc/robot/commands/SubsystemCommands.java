@@ -89,7 +89,7 @@ public final class SubsystemCommands {
 
     private Command feed() {
         return Commands.sequence(
-            Commands.waitSeconds(0.4),
+            Commands.waitSeconds(0.25),
             Commands.parallel(
                 feeder.feedCommand(),
                 Commands.waitSeconds(0.125)

@@ -12,6 +12,7 @@ import com.ctre.phoenix6.SignalLogger;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -119,11 +120,12 @@ public class RobotContainer {
     }
 
     private void configureManualDriveBindings() {
+        
         final ManualDriveCommand manualDriveCommand = new ManualDriveCommand(
             swerve, 
-            () -> -driver.getLeftY()*Math.max(0.1, 1.0-driver.getLeftTriggerAxis()), 
-            () -> -driver.getLeftX()*Math.max(0.1, 1.0-driver.getLeftTriggerAxis()), 
-            () -> -driver.getRightX()*Math.max(0.1, 1.0-(driver.getLeftTriggerAxis()*1.5))
+            () -> -driver.getLeftY(), 
+            () -> -driver.getLeftX(), 
+            () -> -driver.getRightX()
         );
         swerve.setDefaultCommand(manualDriveCommand);
         driver.a().onTrue(Commands.runOnce(() -> manualDriveCommand.setLockedHeading(Rotation2d.k180deg)));
@@ -131,6 +133,7 @@ public class RobotContainer {
         driver.x().onTrue(Commands.runOnce(() -> manualDriveCommand.setLockedHeading(Rotation2d.kCCW_90deg)));
         driver.y().onTrue(Commands.runOnce(() -> manualDriveCommand.setLockedHeading(Rotation2d.kZero)));
         driver.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric()));
+        
     }
 
     private Command updateVisionCommand() {

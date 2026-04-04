@@ -22,7 +22,7 @@ import frc.robot.generated.TunerConstants;
 public final class Constants {
     public static class Driving {
         public static final LinearVelocity kMaxSpeed = TunerConstants.kSpeedAt12Volts;
-        public static final AngularVelocity kMaxRotationalRate = RotationsPerSecond.of(2.0);
+        public static final AngularVelocity kMaxRotationalRate = RotationsPerSecond.of(1.0);
         public static final AngularVelocity kPIDRotationDeadband = kMaxRotationalRate.times(0.005);
     }
 
