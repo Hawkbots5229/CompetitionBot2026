@@ -25,7 +25,6 @@ import static frc.robot.generated.ChoreoTraj.OutpostShootTraj$0;
 import static frc.robot.generated.ChoreoTraj.OutpostShootTraj$1;
 import static frc.robot.generated.ChoreoTraj.OutpostShootTraj$2;
 
-
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
@@ -83,7 +82,7 @@ public final class AutoRoutines {
         this.autoChooser = new AutoChooser();
     }
 
-    
+
     public void configure() {
         autoChooser.addRoutine("ChaosLeftShoot", this::ChaosLeftShootRoutine);
         autoChooser.addRoutine("ChaosRightShoot", this::ChaosRightShootRoutine);
@@ -161,6 +160,7 @@ public final class AutoRoutines {
         
         return routine;
     }
+
 
     private AutoRoutine ClimbShootRoutine() {
         final AutoRoutine routine = autoFactory.newRoutine("ClimbShoot");
@@ -281,7 +281,7 @@ public final class AutoRoutines {
         startToFieldPose.done().onTrue(
             Commands.waitUntil(hanger::isHomed).andThen(
                 Commands.sequence(
-                    Commands.waitSeconds(1.0),
+                    Commands.waitSeconds(0.5),
                     intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
 
                     Commands.deadline(
@@ -333,7 +333,7 @@ public final class AutoRoutines {
         startToFieldPose.done().onTrue(
             Commands.waitUntil(hanger::isHomed).andThen(
                 Commands.sequence(
-                    Commands.waitSeconds(1.0),
+                    Commands.waitSeconds(0.5),
                     intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
 
                     Commands.deadline(
@@ -481,7 +481,7 @@ public final class AutoRoutines {
         startToOutpostPose.done().onTrue(
             Commands.waitUntil(hanger::isHomed).andThen(
                 Commands.sequence(
-                    Commands.waitSeconds(1.0),
+                    Commands.waitSeconds(0.5),
                     intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
 
                     Commands.deadline(
