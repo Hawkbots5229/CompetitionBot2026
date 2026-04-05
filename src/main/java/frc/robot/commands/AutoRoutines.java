@@ -12,6 +12,8 @@ import static frc.robot.generated.ChoreoTraj.ClimbShootTraj$2;
 import static frc.robot.generated.ChoreoTraj.DepotShootTraj$0;
 import static frc.robot.generated.ChoreoTraj.DepotShootTraj$1;
 import static frc.robot.generated.ChoreoTraj.DepotShootTraj$2;
+import static frc.robot.generated.ChoreoTraj.DepotShootTraj$3;
+import static frc.robot.generated.ChoreoTraj.DepotShootTraj$4;
 import static frc.robot.generated.ChoreoTraj.FieldLeftShootTraj$0;
 import static frc.robot.generated.ChoreoTraj.FieldLeftShootTraj$1;
 import static frc.robot.generated.ChoreoTraj.FieldLeftShootTraj$2;
@@ -24,6 +26,8 @@ import static frc.robot.generated.ChoreoTraj.HubRightShootTraj;
 import static frc.robot.generated.ChoreoTraj.OutpostShootTraj$0;
 import static frc.robot.generated.ChoreoTraj.OutpostShootTraj$1;
 import static frc.robot.generated.ChoreoTraj.OutpostShootTraj$2;
+import static frc.robot.generated.ChoreoTraj.OutpostShootTraj$3;
+import static frc.robot.generated.ChoreoTraj.OutpostShootTraj$4;
 
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
@@ -88,12 +92,14 @@ public final class AutoRoutines {
         autoChooser.addRoutine("ChaosRightShoot", this::ChaosRightShootRoutine);
         autoChooser.addRoutine("ClimbShoot", this::ClimbShootRoutine);
         autoChooser.addRoutine("DepotShoot", this::DepotShootRoutine);
+        autoChooser.addRoutine("DepotShootClimb", this::DepotShootClimbRoutine);
         autoChooser.addRoutine("FieldLeftShootRoutine", this::FieldLeftShootRoutine);
         autoChooser.addRoutine("FieldRightShootRoutine", this::FieldRightShootRoutine);
         autoChooser.addRoutine("HubCenterShoot", this::HubCenterShootRoutine);
         autoChooser.addRoutine("HubLeftShoot", this::HubLeftShootRoutine);
         autoChooser.addRoutine("HubRightShoot", this::HubRightShootRoutine);
         autoChooser.addRoutine("OutpostShoot", this::OutpostShootRoutine);
+        autoChooser.addRoutine("OutpostShootClimb", this::OutpostShootClimbRoutine);
         SmartDashboard.putData("Auto Chooser", autoChooser);
         RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
     }
@@ -164,24 +170,23 @@ public final class AutoRoutines {
 
     private AutoRoutine ClimbShootRoutine() {
         final AutoRoutine routine = autoFactory.newRoutine("ClimbShoot");
-        final AutoTrajectory startToShootPose = ClimbShootTraj$0.asAutoTraj(routine);
-        final AutoTrajectory ShootPoseToApproachPose = ClimbShootTraj$1.asAutoTraj(routine);
-        final AutoTrajectory ApproachPoseToClimbPose = ClimbShootTraj$2.asAutoTraj(routine);
+        final AutoTrajectory startToShootingPose = ClimbShootTraj$0.asAutoTraj(routine);
+        final AutoTrajectory shootingPoseToApproachPose = ClimbShootTraj$1.asAutoTraj(routine);
+        final AutoTrajectory approachPoseToClimbPose = ClimbShootTraj$2.asAutoTraj(routine);
         final PrepareShotCommand prepareShotCommand = new PrepareShotCommand(shooter, hood, () -> swerve.getState().Pose);
-
 
         routine.active().onTrue(
             Commands.sequence(
-                startToShootPose.resetOdometry(),
-                startToShootPose.cmd()
+                startToShootingPose.resetOdometry(),
+                startToShootingPose.cmd()
             )    
         );
         
-        startToShootPose.active().whileTrue(limelight.idle()); 
-        ShootPoseToApproachPose.active().whileTrue(limelight.idle()); 
-        ApproachPoseToClimbPose.active().whileTrue(limelight.idle());  
+        startToShootingPose.active().whileTrue(limelight.idle()); 
+        shootingPoseToApproachPose.active().whileTrue(limelight.idle()); 
+        approachPoseToClimbPose.active().whileTrue(limelight.idle());  
         
-        startToShootPose.done().onTrue(
+        startToShootingPose.done().onTrue(
             Commands.waitUntil(hanger::isHomed).andThen(
                 Commands.sequence(
                     Commands.waitSeconds(0.5),
@@ -190,35 +195,35 @@ public final class AutoRoutines {
                         prepareShotCommand,
                         Commands.waitUntil(prepareShotCommand::isReadyToShoot)
                             .andThen(feed())
-                    ).withTimeout(2.0),
+                    ).withTimeout(4.0),
                     intake.runOnce(() -> intake.set(Intake.Position.STOWED)),
-                    ShootPoseToApproachPose.cmd()
+                    shootingPoseToApproachPose.cmd()
                 )              
             )
         );
 
-        ShootPoseToApproachPose.done().onTrue(
+        shootingPoseToApproachPose.done().onTrue(
                 Commands.sequence(
                     hanger.positionCommand(Hanger.Position.HANGING),
                     Commands.waitSeconds(0.25),
-                    ApproachPoseToClimbPose.cmd()
+                    approachPoseToClimbPose.cmd()
                 )
         );
 
-        ApproachPoseToClimbPose.done().onTrue(
+        approachPoseToClimbPose.done().onTrue(
             hanger.positionCommand(Hanger.Position.HUNG)
         );
         
         return routine;
     }
 
+
     private AutoRoutine DepotShootRoutine() {
         final AutoRoutine routine = autoFactory.newRoutine("DepotShoot");
         final AutoTrajectory startToApproachPose = DepotShootTraj$0.asAutoTraj(routine);
         final AutoTrajectory approachPoseToCollectPose = DepotShootTraj$1.asAutoTraj(routine);
-        final AutoTrajectory collectPoseToShootPose = DepotShootTraj$2.asAutoTraj(routine);
+        final AutoTrajectory collectPoseToShootingPose = DepotShootTraj$2.asAutoTraj(routine);
         final PrepareShotCommand prepareShotCommand = new PrepareShotCommand(shooter, hood, () -> swerve.getState().Pose);
-
 
         routine.active().onTrue(
             Commands.sequence(
@@ -229,7 +234,7 @@ public final class AutoRoutines {
         
         startToApproachPose.active().whileTrue(limelight.idle()); 
         approachPoseToCollectPose.active().whileTrue(limelight.idle()); 
-        collectPoseToShootPose.active().whileTrue(limelight.idle());  
+        collectPoseToShootingPose.active().whileTrue(limelight.idle());  
         
         startToApproachPose.done().onTrue(
             Commands.waitUntil(hanger::isHomed).andThen(
@@ -243,12 +248,12 @@ public final class AutoRoutines {
 
         approachPoseToCollectPose.done().onTrue(
                 Commands.sequence(
-                    Commands.waitSeconds(2.0),
-                    collectPoseToShootPose.cmd()
+                    Commands.waitSeconds(5.0),
+                    collectPoseToShootingPose.cmd()
                 )
         );
 
-        collectPoseToShootPose.done().onTrue(
+        collectPoseToShootingPose.done().onTrue(
             Commands.parallel(
                 prepareShotCommand,
                 Commands.waitUntil(prepareShotCommand::isReadyToShoot)
@@ -260,11 +265,78 @@ public final class AutoRoutines {
     }
 
 
+    private AutoRoutine DepotShootClimbRoutine() {
+        final AutoRoutine routine = autoFactory.newRoutine("DepotShootClimb");
+        final AutoTrajectory startToApproachPose = DepotShootTraj$0.asAutoTraj(routine);
+        final AutoTrajectory approachPoseToCollectPose = DepotShootTraj$1.asAutoTraj(routine);
+        final AutoTrajectory collectPoseToShootingPose = DepotShootTraj$2.asAutoTraj(routine);
+        final AutoTrajectory shootingPoseToApproachPose = DepotShootTraj$3.asAutoTraj(routine);
+        final AutoTrajectory approachPoseToClimbPose = DepotShootTraj$4.asAutoTraj(routine);
+        final PrepareShotCommand prepareShotCommand = new PrepareShotCommand(shooter, hood, () -> swerve.getState().Pose);
+
+        routine.active().onTrue(
+            Commands.sequence(
+                startToApproachPose.resetOdometry(),
+                startToApproachPose.cmd()
+            )    
+        );
+        
+        startToApproachPose.active().whileTrue(limelight.idle()); 
+        approachPoseToCollectPose.active().whileTrue(limelight.idle()); 
+        collectPoseToShootingPose.active().whileTrue(limelight.idle());  
+        shootingPoseToApproachPose.active().whileTrue(limelight.idle());
+        approachPoseToClimbPose.active().whileTrue(limelight.idle());
+        
+        startToApproachPose.done().onTrue(
+            Commands.waitUntil(hanger::isHomed).andThen(
+                Commands.sequence(
+                    Commands.waitSeconds(0.5),
+                    intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
+                    approachPoseToCollectPose.cmd()
+                )              
+            )
+        );
+
+        approachPoseToCollectPose.done().onTrue(
+                Commands.sequence(
+                    Commands.waitSeconds(5.0),
+                    collectPoseToShootingPose.cmd()
+                )
+        );
+
+        collectPoseToShootingPose.done().onTrue(
+            Commands.sequence(
+                Commands.parallel(
+                    prepareShotCommand,
+                    Commands.waitUntil(prepareShotCommand::isReadyToShoot)
+                        .andThen(feed())
+                ).withTimeout(4.0),
+                intake.runOnce(() -> intake.set(Intake.Position.STOWED)),
+                shootingPoseToApproachPose.cmd()
+            )
+        );
+
+        shootingPoseToApproachPose.done().onTrue(
+            Commands.sequence(
+                hanger.positionCommand(Hanger.Position.HANGING),
+                Commands.waitSeconds(0.25),
+                approachPoseToClimbPose.cmd()
+            )
+        );
+
+        approachPoseToClimbPose.done().onTrue(
+            hanger.positionCommand(Hanger.Position.HUNG)
+        );
+        
+        return routine;
+    }
+
+
     private AutoRoutine FieldLeftShootRoutine() {
         final AutoRoutine routine = autoFactory.newRoutine("FieldLeftShoot");
         final AutoTrajectory startToFieldPose = FieldLeftShootTraj$0.asAutoTraj(routine);
-        final AutoTrajectory fieldToCollectPose = FieldLeftShootTraj$1.asAutoTraj(routine);
-        final AutoTrajectory collectToShootingPose = FieldLeftShootTraj$2.asAutoTraj(routine);
+        final AutoTrajectory fieldPoseToCollectPose = FieldLeftShootTraj$1.asAutoTraj(routine);
+        final AutoTrajectory collectPoseToShootingPose = FieldLeftShootTraj$2.asAutoTraj(routine);
         final PrepareShotCommand prepareShotCommand = new PrepareShotCommand(shooter, hood, () -> swerve.getState().Pose);
 
         routine.active().onTrue(
@@ -275,8 +347,8 @@ public final class AutoRoutines {
         );
 
         startToFieldPose.active().whileTrue(limelight.idle());
-        fieldToCollectPose.active().whileTrue(limelight.idle());
-        collectToShootingPose.active().whileTrue(limelight.idle());
+        fieldPoseToCollectPose.active().whileTrue(limelight.idle());
+        collectPoseToShootingPose.active().whileTrue(limelight.idle());
 
         startToFieldPose.done().onTrue(
             Commands.waitUntil(hanger::isHomed).andThen(
@@ -285,7 +357,7 @@ public final class AutoRoutines {
                     intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
 
                     Commands.deadline(
-                        fieldToCollectPose.cmd(),
+                        fieldPoseToCollectPose.cmd(),
                         Commands.startEnd(
                             () -> intake.set(Intake.Speed.INTAKE), 
                             () -> intake.set(Intake.Speed.STOP),
@@ -296,11 +368,11 @@ public final class AutoRoutines {
             )
         );
 
-        fieldToCollectPose.done().onTrue(
-            collectToShootingPose.cmd()
+        fieldPoseToCollectPose.done().onTrue(
+            collectPoseToShootingPose.cmd()
         );
 
-        collectToShootingPose.done().onTrue(
+        collectPoseToShootingPose.done().onTrue(
             Commands.parallel(
                 prepareShotCommand,
                 Commands.waitUntil(prepareShotCommand::isReadyToShoot)
@@ -315,8 +387,8 @@ public final class AutoRoutines {
     private AutoRoutine FieldRightShootRoutine() {
         final AutoRoutine routine = autoFactory.newRoutine("FieldRightShoot");
         final AutoTrajectory startToFieldPose = FieldRightShootTraj$0.asAutoTraj(routine);
-        final AutoTrajectory fieldToCollectPose = FieldRightShootTraj$1.asAutoTraj(routine);
-        final AutoTrajectory collectToShootingPose = FieldRightShootTraj$2.asAutoTraj(routine);
+        final AutoTrajectory fieldPoseToCollectPose = FieldRightShootTraj$1.asAutoTraj(routine);
+        final AutoTrajectory collectPoseToShootingPose = FieldRightShootTraj$2.asAutoTraj(routine);
         final PrepareShotCommand prepareShotCommand = new PrepareShotCommand(shooter, hood, () -> swerve.getState().Pose);
 
         routine.active().onTrue(
@@ -327,8 +399,8 @@ public final class AutoRoutines {
         );
 
         startToFieldPose.active().whileTrue(limelight.idle());
-        fieldToCollectPose.active().whileTrue(limelight.idle());
-        collectToShootingPose.active().whileTrue(limelight.idle());
+        fieldPoseToCollectPose.active().whileTrue(limelight.idle());
+        collectPoseToShootingPose.active().whileTrue(limelight.idle());
 
         startToFieldPose.done().onTrue(
             Commands.waitUntil(hanger::isHomed).andThen(
@@ -337,7 +409,7 @@ public final class AutoRoutines {
                     intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
 
                     Commands.deadline(
-                        fieldToCollectPose.cmd(),
+                        fieldPoseToCollectPose.cmd(),
                         Commands.startEnd(
                             () -> intake.set(Intake.Speed.INTAKE), 
                             () -> intake.set(Intake.Speed.STOP),
@@ -348,11 +420,11 @@ public final class AutoRoutines {
             )
         );
 
-        fieldToCollectPose.done().onTrue(
-            collectToShootingPose.cmd()
+        fieldPoseToCollectPose.done().onTrue(
+            collectPoseToShootingPose.cmd()
         );
 
-        collectToShootingPose.done().onTrue(
+        collectPoseToShootingPose.done().onTrue(
             Commands.parallel(
                 prepareShotCommand,
                 Commands.waitUntil(prepareShotCommand::isReadyToShoot)
@@ -463,8 +535,8 @@ public final class AutoRoutines {
     private AutoRoutine OutpostShootRoutine() {
         final AutoRoutine routine = autoFactory.newRoutine("OutpostShoot");
         final AutoTrajectory startToOutpostPose = OutpostShootTraj$0.asAutoTraj(routine);
-        final AutoTrajectory outpostToCollectPose = OutpostShootTraj$1.asAutoTraj(routine);
-        final AutoTrajectory collectToShootingPose = OutpostShootTraj$2.asAutoTraj(routine);
+        final AutoTrajectory outpostPoseToCollectPose = OutpostShootTraj$1.asAutoTraj(routine);
+        final AutoTrajectory collectPoseToShootingPose = OutpostShootTraj$2.asAutoTraj(routine);
         final PrepareShotCommand prepareShotCommand = new PrepareShotCommand(shooter, hood, () -> swerve.getState().Pose);
 
         routine.active().onTrue(
@@ -475,8 +547,8 @@ public final class AutoRoutines {
         );
 
         startToOutpostPose.active().whileTrue(limelight.idle());
-        outpostToCollectPose.active().whileTrue(limelight.idle());
-        collectToShootingPose.active().whileTrue(limelight.idle());
+        outpostPoseToCollectPose.active().whileTrue(limelight.idle());
+        collectPoseToShootingPose.active().whileTrue(limelight.idle());
 
         startToOutpostPose.done().onTrue(
             Commands.waitUntil(hanger::isHomed).andThen(
@@ -485,7 +557,7 @@ public final class AutoRoutines {
                     intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
 
                     Commands.deadline(
-                        outpostToCollectPose.cmd(),
+                        outpostPoseToCollectPose.cmd(),
                         Commands.startEnd(
                             () -> intake.set(Intake.Speed.INTAKE), 
                             () -> intake.set(Intake.Speed.STOP),
@@ -496,16 +568,88 @@ public final class AutoRoutines {
             )
         );
 
-        outpostToCollectPose.done().onTrue(
-            collectToShootingPose.cmd()
+        outpostPoseToCollectPose.done().onTrue(
+            collectPoseToShootingPose.cmd()
         );
 
-        collectToShootingPose.done().onTrue(
+        collectPoseToShootingPose.done().onTrue(
             Commands.parallel(
                 prepareShotCommand,
                 Commands.waitUntil(prepareShotCommand::isReadyToShoot)
                     .andThen(feed())
             )
+        );
+        
+        return routine;
+    }
+
+
+        private AutoRoutine OutpostShootClimbRoutine() {
+        final AutoRoutine routine = autoFactory.newRoutine("OutpostShootClimb");
+        final AutoTrajectory startToOutpostPose = OutpostShootTraj$0.asAutoTraj(routine);
+        final AutoTrajectory outpostPoseToCollectPose = OutpostShootTraj$1.asAutoTraj(routine);
+        final AutoTrajectory collectPoseToShootingPose = OutpostShootTraj$2.asAutoTraj(routine);
+        final AutoTrajectory shootingPoseToApproachPose = OutpostShootTraj$3.asAutoTraj(routine);
+        final AutoTrajectory approachPoseToClimbPose = OutpostShootTraj$4.asAutoTraj(routine);
+        final PrepareShotCommand prepareShotCommand = new PrepareShotCommand(shooter, hood, () -> swerve.getState().Pose);
+
+        routine.active().onTrue(
+                Commands.sequence(
+                    startToOutpostPose.resetOdometry(),
+                    startToOutpostPose.cmd()
+                ) 
+        );
+
+        startToOutpostPose.active().whileTrue(limelight.idle());
+        outpostPoseToCollectPose.active().whileTrue(limelight.idle());
+        collectPoseToShootingPose.active().whileTrue(limelight.idle());
+        shootingPoseToApproachPose.active().whileTrue(limelight.idle());
+        approachPoseToClimbPose.active().whileTrue(limelight.idle());
+
+        startToOutpostPose.done().onTrue(
+            Commands.waitUntil(hanger::isHomed).andThen(
+                Commands.sequence(
+                    Commands.waitSeconds(0.5),
+                    intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
+
+                    Commands.deadline(
+                        outpostPoseToCollectPose.cmd(),
+                        Commands.startEnd(
+                            () -> intake.set(Intake.Speed.INTAKE), 
+                            () -> intake.set(Intake.Speed.STOP),
+                            intake
+                        )
+                    )
+                )
+            )
+        );
+
+        outpostPoseToCollectPose.done().onTrue(
+            collectPoseToShootingPose.cmd()
+        );
+
+        collectPoseToShootingPose.done().onTrue(
+            Commands.sequence(
+                Commands.parallel(
+                    prepareShotCommand,
+                    Commands.waitUntil(prepareShotCommand::isReadyToShoot)
+                        .andThen(feed())
+                ).withTimeout(4.0),
+                intake.runOnce(() -> intake.set(Intake.Position.STOWED)),
+                shootingPoseToApproachPose.cmd()
+            )
+        );
+
+        shootingPoseToApproachPose.done().onTrue(
+            Commands.sequence(
+                hanger.positionCommand(Hanger.Position.HANGING),
+                Commands.waitSeconds(0.25),
+                approachPoseToClimbPose.cmd()
+            )
+        );
+
+        approachPoseToClimbPose.done().onTrue(
+            hanger.positionCommand(Hanger.Position.HUNG)
         );
         
         return routine;
