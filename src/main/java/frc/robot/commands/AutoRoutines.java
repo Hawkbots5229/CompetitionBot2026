@@ -93,8 +93,8 @@ public final class AutoRoutines {
         autoChooser.addRoutine("ClimbShoot", this::ClimbShootRoutine);
         autoChooser.addRoutine("DepotShoot", this::DepotShootRoutine);
         autoChooser.addRoutine("DepotShootClimb", this::DepotShootClimbRoutine);
-        autoChooser.addRoutine("FieldLeftShootRoutine", this::FieldLeftShootRoutine);
-        autoChooser.addRoutine("FieldRightShootRoutine", this::FieldRightShootRoutine);
+        autoChooser.addRoutine("FieldLeftShoot", this::FieldLeftShootRoutine);
+        autoChooser.addRoutine("FieldRightShoot", this::FieldRightShootRoutine);
         autoChooser.addRoutine("HubCenterShoot", this::HubCenterShootRoutine);
         autoChooser.addRoutine("HubLeftShoot", this::HubLeftShootRoutine);
         autoChooser.addRoutine("HubRightShoot", this::HubRightShootRoutine);
