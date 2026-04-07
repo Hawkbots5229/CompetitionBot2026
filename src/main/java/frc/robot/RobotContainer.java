@@ -85,9 +85,11 @@ public class RobotContainer {
         SignalLogger.enableAutoLogging(false);
         configureBindings();
         autoRoutines.configure();
+        RobotModeTriggers.autonomous().whileTrue(limelight.idle());
         swerve.registerTelemetry(swerveTelemetry::telemeterize);
         hood.setDefaultCommand(hoodDefaultCommand);
         shooter.setDefaultCommand(setShooterCommand);
+
     }
     
     /**

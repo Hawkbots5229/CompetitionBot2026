@@ -61,6 +61,11 @@ public final class AutoRoutines {
     private final AutoFactory autoFactory;
     private final AutoChooser autoChooser;
 
+    private final double kShootTime     = 3.00; //Seconds
+    private final double kHomeWaitTime  = 0.25; //Seconds
+    private final double kHangWaitTime  = 0.25; //Seconds 
+    private final double kDepotWaitTime = 3.00; //Seconds
+
     public AutoRoutines(
         Swerve swerve,
         Intake intake,
@@ -117,12 +122,10 @@ public final class AutoRoutines {
             )    
         );
         
-        startToShootingPose.active().whileTrue(limelight.idle());
-        
         startToShootingPose.done().onTrue(
             Commands.waitUntil(hanger::isHomed).andThen(
                 Commands.sequence(
-                    Commands.waitSeconds(0.5),
+                    Commands.waitSeconds(kHomeWaitTime),
                     intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
                     Commands.parallel(
                         prepareShotCommand,
@@ -146,14 +149,12 @@ public final class AutoRoutines {
                 startToShootingPose.resetOdometry(),
                 startToShootingPose.cmd()
             )    
-        );
-        
-        startToShootingPose.active().whileTrue(limelight.idle());
+        );      
         
         startToShootingPose.done().onTrue(
             Commands.waitUntil(hanger::isHomed).andThen(
                 Commands.sequence(
-                    Commands.waitSeconds(0.5),
+                    Commands.waitSeconds(kHomeWaitTime),
                     intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
                     Commands.parallel(
                         prepareShotCommand,
@@ -181,21 +182,17 @@ public final class AutoRoutines {
                 startToShootingPose.cmd()
             )    
         );
-        
-        startToShootingPose.active().whileTrue(limelight.idle()); 
-        shootingPoseToApproachPose.active().whileTrue(limelight.idle()); 
-        approachPoseToClimbPose.active().whileTrue(limelight.idle());  
-        
+       
         startToShootingPose.done().onTrue(
             Commands.waitUntil(hanger::isHomed).andThen(
                 Commands.sequence(
-                    Commands.waitSeconds(0.5),
+                    Commands.waitSeconds(kHomeWaitTime),
                     intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
                     Commands.parallel(
                         prepareShotCommand,
                         Commands.waitUntil(prepareShotCommand::isReadyToShoot)
                             .andThen(feed())
-                    ).withTimeout(4.0),
+                    ).withTimeout(kShootTime),
                     intake.runOnce(() -> intake.set(Intake.Position.STOWED)),
                     shootingPoseToApproachPose.cmd()
                 )              
@@ -205,7 +202,7 @@ public final class AutoRoutines {
         shootingPoseToApproachPose.done().onTrue(
                 Commands.sequence(
                     hanger.positionCommand(Hanger.Position.HANGING),
-                    Commands.waitSeconds(0.25),
+                    Commands.waitSeconds(kHangWaitTime),
                     approachPoseToClimbPose.cmd()
                 )
         );
@@ -232,14 +229,10 @@ public final class AutoRoutines {
             )    
         );
         
-        startToApproachPose.active().whileTrue(limelight.idle()); 
-        approachPoseToCollectPose.active().whileTrue(limelight.idle()); 
-        collectPoseToShootingPose.active().whileTrue(limelight.idle());  
-        
         startToApproachPose.done().onTrue(
             Commands.waitUntil(hanger::isHomed).andThen(
                 Commands.sequence(
-                    Commands.waitSeconds(0.5),
+                    Commands.waitSeconds(kHomeWaitTime),
                     intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
                     approachPoseToCollectPose.cmd()
                 )              
@@ -248,7 +241,7 @@ public final class AutoRoutines {
 
         approachPoseToCollectPose.done().onTrue(
                 Commands.sequence(
-                    Commands.waitSeconds(5.0),
+                    Commands.waitSeconds(kDepotWaitTime),
                     collectPoseToShootingPose.cmd()
                 )
         );
@@ -281,25 +274,21 @@ public final class AutoRoutines {
             )    
         );
         
-        startToApproachPose.active().whileTrue(limelight.idle()); 
-        approachPoseToCollectPose.active().whileTrue(limelight.idle()); 
-        collectPoseToShootingPose.active().whileTrue(limelight.idle());  
-        shootingPoseToApproachPose.active().whileTrue(limelight.idle());
-        approachPoseToClimbPose.active().whileTrue(limelight.idle());
-        
         startToApproachPose.done().onTrue(
-            Commands.waitUntil(hanger::isHomed).andThen(
-                Commands.sequence(
-                    Commands.waitSeconds(0.5),
-                    intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
-                    approachPoseToCollectPose.cmd()
-                )              
+            Commands.sequence(
+                Commands.waitUntil(hanger::isHomed).andThen(
+                    Commands.sequence(
+                        Commands.waitSeconds(kHomeWaitTime),
+                        intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
+                        approachPoseToCollectPose.cmd()
+                    )              
+                )
             )
         );
 
         approachPoseToCollectPose.done().onTrue(
                 Commands.sequence(
-                    Commands.waitSeconds(5.0),
+                    Commands.waitSeconds(kDepotWaitTime),
                     collectPoseToShootingPose.cmd()
                 )
         );
@@ -310,7 +299,7 @@ public final class AutoRoutines {
                     prepareShotCommand,
                     Commands.waitUntil(prepareShotCommand::isReadyToShoot)
                         .andThen(feed())
-                ).withTimeout(4.0),
+                ).withTimeout(kShootTime),
                 intake.runOnce(() -> intake.set(Intake.Position.STOWED)),
                 shootingPoseToApproachPose.cmd()
             )
@@ -319,7 +308,7 @@ public final class AutoRoutines {
         shootingPoseToApproachPose.done().onTrue(
             Commands.sequence(
                 hanger.positionCommand(Hanger.Position.HANGING),
-                Commands.waitSeconds(0.25),
+                Commands.waitSeconds(kHangWaitTime),
                 approachPoseToClimbPose.cmd()
             )
         );
@@ -346,14 +335,10 @@ public final class AutoRoutines {
                 ) 
         );
 
-        startToFieldPose.active().whileTrue(limelight.idle());
-        fieldPoseToCollectPose.active().whileTrue(limelight.idle());
-        collectPoseToShootingPose.active().whileTrue(limelight.idle());
-
         startToFieldPose.done().onTrue(
             Commands.waitUntil(hanger::isHomed).andThen(
                 Commands.sequence(
-                    Commands.waitSeconds(0.5),
+                    Commands.waitSeconds(kHomeWaitTime),
                     intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
 
                     Commands.deadline(
@@ -398,14 +383,10 @@ public final class AutoRoutines {
                 ) 
         );
 
-        startToFieldPose.active().whileTrue(limelight.idle());
-        fieldPoseToCollectPose.active().whileTrue(limelight.idle());
-        collectPoseToShootingPose.active().whileTrue(limelight.idle());
-
         startToFieldPose.done().onTrue(
             Commands.waitUntil(hanger::isHomed).andThen(
                 Commands.sequence(
-                    Commands.waitSeconds(0.5),
+                    Commands.waitSeconds(kHomeWaitTime),
                     intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
 
                     Commands.deadline(
@@ -448,12 +429,10 @@ public final class AutoRoutines {
             )    
         );
         
-        startToShootingPose.active().whileTrue(limelight.idle());
-        
         startToShootingPose.done().onTrue(
             Commands.waitUntil(hanger::isHomed).andThen(
                 Commands.sequence(
-                    Commands.waitSeconds(0.5),
+                    Commands.waitSeconds(kHomeWaitTime),
                     intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
                     Commands.parallel(
                         prepareShotCommand,
@@ -480,12 +459,10 @@ public final class AutoRoutines {
             )    
         );
         
-        startToShootingPose.active().whileTrue(limelight.idle());
-        
         startToShootingPose.done().onTrue(
             Commands.waitUntil(hanger::isHomed).andThen(
                 Commands.sequence(
-                    Commands.waitSeconds(0.5),
+                    Commands.waitSeconds(kHomeWaitTime),
                     intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
                     Commands.parallel(
                         prepareShotCommand,
@@ -512,12 +489,10 @@ public final class AutoRoutines {
             )    
         );
         
-        startToShootingPose.active().whileTrue(limelight.idle());
-        
         startToShootingPose.done().onTrue(
             Commands.waitUntil(hanger::isHomed).andThen(
                 Commands.sequence(
-                    Commands.waitSeconds(0.5),
+                    Commands.waitSeconds(kHomeWaitTime),
                     intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
                     Commands.parallel(
                         prepareShotCommand,
@@ -546,14 +521,10 @@ public final class AutoRoutines {
                 ) 
         );
 
-        startToOutpostPose.active().whileTrue(limelight.idle());
-        outpostPoseToCollectPose.active().whileTrue(limelight.idle());
-        collectPoseToShootingPose.active().whileTrue(limelight.idle());
-
         startToOutpostPose.done().onTrue(
             Commands.waitUntil(hanger::isHomed).andThen(
                 Commands.sequence(
-                    Commands.waitSeconds(0.5),
+                    Commands.waitSeconds(kHomeWaitTime),
                     intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
 
                     Commands.deadline(
@@ -584,7 +555,7 @@ public final class AutoRoutines {
     }
 
 
-        private AutoRoutine OutpostShootClimbRoutine() {
+    private AutoRoutine OutpostShootClimbRoutine() {
         final AutoRoutine routine = autoFactory.newRoutine("OutpostShootClimb");
         final AutoTrajectory startToOutpostPose = OutpostShootTraj$0.asAutoTraj(routine);
         final AutoTrajectory outpostPoseToCollectPose = OutpostShootTraj$1.asAutoTraj(routine);
@@ -600,16 +571,10 @@ public final class AutoRoutines {
                 ) 
         );
 
-        startToOutpostPose.active().whileTrue(limelight.idle());
-        outpostPoseToCollectPose.active().whileTrue(limelight.idle());
-        collectPoseToShootingPose.active().whileTrue(limelight.idle());
-        shootingPoseToApproachPose.active().whileTrue(limelight.idle());
-        approachPoseToClimbPose.active().whileTrue(limelight.idle());
-
         startToOutpostPose.done().onTrue(
             Commands.waitUntil(hanger::isHomed).andThen(
                 Commands.sequence(
-                    Commands.waitSeconds(0.5),
+                    Commands.waitSeconds(kHomeWaitTime),
                     intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
 
                     Commands.deadline(
@@ -634,7 +599,7 @@ public final class AutoRoutines {
                     prepareShotCommand,
                     Commands.waitUntil(prepareShotCommand::isReadyToShoot)
                         .andThen(feed())
-                ).withTimeout(4.0),
+                ).withTimeout(kShootTime),
                 intake.runOnce(() -> intake.set(Intake.Position.STOWED)),
                 shootingPoseToApproachPose.cmd()
             )
@@ -643,7 +608,7 @@ public final class AutoRoutines {
         shootingPoseToApproachPose.done().onTrue(
             Commands.sequence(
                 hanger.positionCommand(Hanger.Position.HANGING),
-                Commands.waitSeconds(0.25),
+                Commands.waitSeconds(kHangWaitTime),
                 approachPoseToClimbPose.cmd()
             )
         );
