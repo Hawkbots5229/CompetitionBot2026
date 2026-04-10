@@ -61,10 +61,10 @@ public final class AutoRoutines {
     private final AutoFactory autoFactory;
     private final AutoChooser autoChooser;
 
-    private final double kShootTime     = 3.00; //Seconds
+    private final double kShootTime     = 5.00; //Seconds
     private final double kHomeWaitTime  = 0.25; //Seconds
     private final double kHangWaitTime  = 0.25; //Seconds 
-    private final double kDepotWaitTime = 3.00; //Seconds
+    private final double kDepotWaitTime = 2.00; //Seconds
 
     public AutoRoutines(
         Swerve swerve,
@@ -113,7 +113,6 @@ public final class AutoRoutines {
     private AutoRoutine ChaosLeftShootRoutine() {
         final AutoRoutine routine = autoFactory.newRoutine("ChaosLeftShoot");
         final AutoTrajectory startToShootingPose = ChaosLeftShootTraj.asAutoTraj(routine);
-        final PrepareShotCommand prepareShotCommand = new PrepareShotCommand(shooter, hood, () -> swerve.getState().Pose);
 
         routine.active().onTrue(
             Commands.sequence(
@@ -127,11 +126,9 @@ public final class AutoRoutines {
                 Commands.sequence(
                     Commands.waitSeconds(kHomeWaitTime),
                     intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
-                    Commands.parallel(
-                        prepareShotCommand,
-                        Commands.waitUntil(prepareShotCommand::isReadyToShoot)
-                            .andThen(feed())
-                    )
+                    shooter.runOnce(() -> shooter.setDashboardTargetRPM(3350)),
+                    hood.runOnce(() -> hood.setPosition(0.27)),
+                    subsystemCommands.shootManually().withTimeout(kShootTime)
                 )
             )
         );        
@@ -142,7 +139,6 @@ public final class AutoRoutines {
     private AutoRoutine ChaosRightShootRoutine() {
         final AutoRoutine routine = autoFactory.newRoutine("ChaosRightShoot");
         final AutoTrajectory startToShootingPose = ChaosRightShootTraj.asAutoTraj(routine);
-        final PrepareShotCommand prepareShotCommand = new PrepareShotCommand(shooter, hood, () -> swerve.getState().Pose);
 
         routine.active().onTrue(
             Commands.sequence(
@@ -156,11 +152,9 @@ public final class AutoRoutines {
                 Commands.sequence(
                     Commands.waitSeconds(kHomeWaitTime),
                     intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
-                    Commands.parallel(
-                        prepareShotCommand,
-                        Commands.waitUntil(prepareShotCommand::isReadyToShoot)
-                            .andThen(feed())
-                    )
+                    shooter.runOnce(() -> shooter.setDashboardTargetRPM(3350)),
+                    hood.runOnce(() -> hood.setPosition(0.27)),
+                    subsystemCommands.shootManually().withTimeout(kShootTime)
                 )
             )
         );        
@@ -174,7 +168,6 @@ public final class AutoRoutines {
         final AutoTrajectory startToShootingPose = ClimbShootTraj$0.asAutoTraj(routine);
         final AutoTrajectory shootingPoseToApproachPose = ClimbShootTraj$1.asAutoTraj(routine);
         final AutoTrajectory approachPoseToClimbPose = ClimbShootTraj$2.asAutoTraj(routine);
-        final PrepareShotCommand prepareShotCommand = new PrepareShotCommand(shooter, hood, () -> swerve.getState().Pose);
 
         routine.active().onTrue(
             Commands.sequence(
@@ -188,11 +181,9 @@ public final class AutoRoutines {
                 Commands.sequence(
                     Commands.waitSeconds(kHomeWaitTime),
                     intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
-                    Commands.parallel(
-                        prepareShotCommand,
-                        Commands.waitUntil(prepareShotCommand::isReadyToShoot)
-                            .andThen(feed())
-                    ).withTimeout(kShootTime),
+                    shooter.runOnce(() -> shooter.setDashboardTargetRPM(2950)),
+                    hood.runOnce(() -> hood.setPosition(0.29)),
+                    subsystemCommands.shootManually().withTimeout(kShootTime),
                     intake.runOnce(() -> intake.set(Intake.Position.STOWED)),
                     shootingPoseToApproachPose.cmd()
                 )              
@@ -220,7 +211,6 @@ public final class AutoRoutines {
         final AutoTrajectory startToApproachPose = DepotShootTraj$0.asAutoTraj(routine);
         final AutoTrajectory approachPoseToCollectPose = DepotShootTraj$1.asAutoTraj(routine);
         final AutoTrajectory collectPoseToShootingPose = DepotShootTraj$2.asAutoTraj(routine);
-        final PrepareShotCommand prepareShotCommand = new PrepareShotCommand(shooter, hood, () -> swerve.getState().Pose);
 
         routine.active().onTrue(
             Commands.sequence(
@@ -247,10 +237,10 @@ public final class AutoRoutines {
         );
 
         collectPoseToShootingPose.done().onTrue(
-            Commands.parallel(
-                prepareShotCommand,
-                Commands.waitUntil(prepareShotCommand::isReadyToShoot)
-                    .andThen(feed())
+            Commands.sequence(
+                shooter.runOnce(() -> shooter.setDashboardTargetRPM(3700)),
+                hood.runOnce(() -> hood.setPosition(0.55)),
+                subsystemCommands.shootManually().withTimeout(kShootTime)
             )
         );
         
@@ -265,7 +255,6 @@ public final class AutoRoutines {
         final AutoTrajectory collectPoseToShootingPose = DepotShootTraj$2.asAutoTraj(routine);
         final AutoTrajectory shootingPoseToApproachPose = DepotShootTraj$3.asAutoTraj(routine);
         final AutoTrajectory approachPoseToClimbPose = DepotShootTraj$4.asAutoTraj(routine);
-        final PrepareShotCommand prepareShotCommand = new PrepareShotCommand(shooter, hood, () -> swerve.getState().Pose);
 
         routine.active().onTrue(
             Commands.sequence(
@@ -295,11 +284,9 @@ public final class AutoRoutines {
 
         collectPoseToShootingPose.done().onTrue(
             Commands.sequence(
-                Commands.parallel(
-                    prepareShotCommand,
-                    Commands.waitUntil(prepareShotCommand::isReadyToShoot)
-                        .andThen(feed())
-                ).withTimeout(kShootTime),
+                shooter.runOnce(() -> shooter.setDashboardTargetRPM(3700)),
+                hood.runOnce(() -> hood.setPosition(0.55)),
+                subsystemCommands.shootManually().withTimeout(kShootTime),
                 intake.runOnce(() -> intake.set(Intake.Position.STOWED)),
                 shootingPoseToApproachPose.cmd()
             )
@@ -326,7 +313,6 @@ public final class AutoRoutines {
         final AutoTrajectory startToFieldPose = FieldLeftShootTraj$0.asAutoTraj(routine);
         final AutoTrajectory fieldPoseToCollectPose = FieldLeftShootTraj$1.asAutoTraj(routine);
         final AutoTrajectory collectPoseToShootingPose = FieldLeftShootTraj$2.asAutoTraj(routine);
-        final PrepareShotCommand prepareShotCommand = new PrepareShotCommand(shooter, hood, () -> swerve.getState().Pose);
 
         routine.active().onTrue(
                 Commands.sequence(
@@ -358,10 +344,10 @@ public final class AutoRoutines {
         );
 
         collectPoseToShootingPose.done().onTrue(
-            Commands.parallel(
-                prepareShotCommand,
-                Commands.waitUntil(prepareShotCommand::isReadyToShoot)
-                    .andThen(feed())
+            Commands.sequence(
+                shooter.runOnce(() -> shooter.setDashboardTargetRPM(3350)),
+                hood.runOnce(() -> hood.setPosition(0.27)),
+                subsystemCommands.shootManually().withTimeout(kShootTime)
             )
         );
         
@@ -374,7 +360,6 @@ public final class AutoRoutines {
         final AutoTrajectory startToFieldPose = FieldRightShootTraj$0.asAutoTraj(routine);
         final AutoTrajectory fieldPoseToCollectPose = FieldRightShootTraj$1.asAutoTraj(routine);
         final AutoTrajectory collectPoseToShootingPose = FieldRightShootTraj$2.asAutoTraj(routine);
-        final PrepareShotCommand prepareShotCommand = new PrepareShotCommand(shooter, hood, () -> swerve.getState().Pose);
 
         routine.active().onTrue(
                 Commands.sequence(
@@ -406,10 +391,10 @@ public final class AutoRoutines {
         );
 
         collectPoseToShootingPose.done().onTrue(
-            Commands.parallel(
-                prepareShotCommand,
-                Commands.waitUntil(prepareShotCommand::isReadyToShoot)
-                    .andThen(feed())
+            Commands.sequence(
+                shooter.runOnce(() -> shooter.setDashboardTargetRPM(3350)),
+                hood.runOnce(() -> hood.setPosition(0.27)),
+                subsystemCommands.shootManually().withTimeout(kShootTime)
             )
         );
         
@@ -420,7 +405,6 @@ public final class AutoRoutines {
     private AutoRoutine HubCenterShootRoutine() {
         final AutoRoutine routine = autoFactory.newRoutine("HubCenterShoot");
         final AutoTrajectory startToShootingPose = HubCenterShootTraj.asAutoTraj(routine);
-        final PrepareShotCommand prepareShotCommand = new PrepareShotCommand(shooter, hood, () -> swerve.getState().Pose);
 
         routine.active().onTrue(
             Commands.sequence(
@@ -434,11 +418,9 @@ public final class AutoRoutines {
                 Commands.sequence(
                     Commands.waitSeconds(kHomeWaitTime),
                     intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
-                    Commands.parallel(
-                        prepareShotCommand,
-                        Commands.waitUntil(prepareShotCommand::isReadyToShoot)
-                            .andThen(feed())
-                    )
+                    shooter.runOnce(() -> shooter.setDashboardTargetRPM(3150)),
+                    hood.runOnce(() -> hood.setPosition(0.27)),
+                    subsystemCommands.shootManually().withTimeout(kShootTime)
                 )
             )
         );        
@@ -450,7 +432,6 @@ public final class AutoRoutines {
     private AutoRoutine HubLeftShootRoutine() {
         final AutoRoutine routine = autoFactory.newRoutine("HubLeftShoot");
         final AutoTrajectory startToShootingPose = HubLeftShootTraj.asAutoTraj(routine);
-        final PrepareShotCommand prepareShotCommand = new PrepareShotCommand(shooter, hood, () -> swerve.getState().Pose);
 
         routine.active().onTrue(
             Commands.sequence(
@@ -464,11 +445,9 @@ public final class AutoRoutines {
                 Commands.sequence(
                     Commands.waitSeconds(kHomeWaitTime),
                     intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
-                    Commands.parallel(
-                        prepareShotCommand,
-                        Commands.waitUntil(prepareShotCommand::isReadyToShoot)
-                            .andThen(feed())
-                    )
+                    shooter.runOnce(() -> shooter.setDashboardTargetRPM(3350)),
+                    hood.runOnce(() -> hood.setPosition(0.27)),
+                    subsystemCommands.shootManually().withTimeout(kShootTime)
                 )
             )
         );        
@@ -480,7 +459,6 @@ public final class AutoRoutines {
     private AutoRoutine HubRightShootRoutine() {
         final AutoRoutine routine = autoFactory.newRoutine("HubRightShoot");
         final AutoTrajectory startToShootingPose = HubRightShootTraj.asAutoTraj(routine);
-        final PrepareShotCommand prepareShotCommand = new PrepareShotCommand(shooter, hood, () -> swerve.getState().Pose);
 
         routine.active().onTrue(
             Commands.sequence(
@@ -494,11 +472,9 @@ public final class AutoRoutines {
                 Commands.sequence(
                     Commands.waitSeconds(kHomeWaitTime),
                     intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
-                    Commands.parallel(
-                        prepareShotCommand,
-                        Commands.waitUntil(prepareShotCommand::isReadyToShoot)
-                            .andThen(feed())
-                    )
+                    shooter.runOnce(() -> shooter.setDashboardTargetRPM(3350)),
+                    hood.runOnce(() -> hood.setPosition(0.27)),
+                    subsystemCommands.shootManually().withTimeout(kShootTime)
                 )
             )
         );        
@@ -512,7 +488,6 @@ public final class AutoRoutines {
         final AutoTrajectory startToOutpostPose = OutpostShootTraj$0.asAutoTraj(routine);
         final AutoTrajectory outpostPoseToCollectPose = OutpostShootTraj$1.asAutoTraj(routine);
         final AutoTrajectory collectPoseToShootingPose = OutpostShootTraj$2.asAutoTraj(routine);
-        final PrepareShotCommand prepareShotCommand = new PrepareShotCommand(shooter, hood, () -> swerve.getState().Pose);
 
         routine.active().onTrue(
                 Commands.sequence(
@@ -544,10 +519,10 @@ public final class AutoRoutines {
         );
 
         collectPoseToShootingPose.done().onTrue(
-            Commands.parallel(
-                prepareShotCommand,
-                Commands.waitUntil(prepareShotCommand::isReadyToShoot)
-                    .andThen(feed())
+            Commands.sequence(
+                shooter.runOnce(() -> shooter.setDashboardTargetRPM(3300)),
+                hood.runOnce(() -> hood.setPosition(0.40)),
+                subsystemCommands.shootManually().withTimeout(kShootTime)
             )
         );
         
@@ -562,7 +537,6 @@ public final class AutoRoutines {
         final AutoTrajectory collectPoseToShootingPose = OutpostShootTraj$2.asAutoTraj(routine);
         final AutoTrajectory shootingPoseToApproachPose = OutpostShootTraj$3.asAutoTraj(routine);
         final AutoTrajectory approachPoseToClimbPose = OutpostShootTraj$4.asAutoTraj(routine);
-        final PrepareShotCommand prepareShotCommand = new PrepareShotCommand(shooter, hood, () -> swerve.getState().Pose);
 
         routine.active().onTrue(
                 Commands.sequence(
@@ -595,11 +569,9 @@ public final class AutoRoutines {
 
         collectPoseToShootingPose.done().onTrue(
             Commands.sequence(
-                Commands.parallel(
-                    prepareShotCommand,
-                    Commands.waitUntil(prepareShotCommand::isReadyToShoot)
-                        .andThen(feed())
-                ).withTimeout(kShootTime),
+                shooter.runOnce(() -> shooter.setDashboardTargetRPM(3500)),
+                hood.runOnce(() -> hood.setPosition(0.45)),
+                subsystemCommands.shootManually().withTimeout(kShootTime),
                 intake.runOnce(() -> intake.set(Intake.Position.STOWED)),
                 shootingPoseToApproachPose.cmd()
             )
@@ -620,13 +592,4 @@ public final class AutoRoutines {
         return routine;
     }
 
-
-    private Command feed() {
-        return 
-            Commands.parallel(
-                feeder.feedCommand(),
-                Commands.waitSeconds(0.125)
-                    .andThen(floor.feedCommand().alongWith(intake.agitateCommand()))
-            );
-    }
 }
