@@ -41,15 +41,15 @@ public record ChoreoTraj(
     public static final ChoreoTraj ClimbShootTraj = new ChoreoTraj(
         "ClimbShootTraj",
         OptionalInt.empty(),
-        8.23153,
+        7.24885,
         new Pose2d(3.57, 3.83, Rotation2d.fromRadians(0)),
-        new Pose2d(1, 3.73, Rotation2d.fromRadians(3.14159))
+        new Pose2d(1, 3.75, Rotation2d.fromRadians(3.14159))
     );
     /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
     public static final ChoreoTraj ClimbShootTraj$0 = new ChoreoTraj(
         "ClimbShootTraj",
         OptionalInt.of(0),
-        1.7565,
+        1.43502,
         new Pose2d(3.57, 3.83, Rotation2d.fromRadians(0)),
         new Pose2d(3.1, 3.83, Rotation2d.fromRadians(0))
     );
@@ -57,17 +57,17 @@ public record ChoreoTraj(
     public static final ChoreoTraj ClimbShootTraj$1 = new ChoreoTraj(
         "ClimbShootTraj",
         OptionalInt.of(1),
-        2.6932,
+        2.19747,
         new Pose2d(3.1, 3.83, Rotation2d.fromRadians(0)),
-        new Pose2d(2, 3.73, Rotation2d.fromRadians(3.14159))
+        new Pose2d(2, 3.75, Rotation2d.fromRadians(3.14159))
     );
     /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
     public static final ChoreoTraj ClimbShootTraj$2 = new ChoreoTraj(
         "ClimbShootTraj",
         OptionalInt.of(2),
-        3.7818299999999994,
-        new Pose2d(2, 3.73, Rotation2d.fromRadians(3.14159)),
-        new Pose2d(1, 3.73, Rotation2d.fromRadians(3.14159))
+        3.61636,
+        new Pose2d(2, 3.75, Rotation2d.fromRadians(3.14159)),
+        new Pose2d(1, 3.75, Rotation2d.fromRadians(3.14159))
     );
     public static final ChoreoTraj DepotShootTraj = new ChoreoTraj(
         "DepotShootTraj",
@@ -119,7 +119,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj FieldLeftShootTraj = new ChoreoTraj(
         "FieldLeftShootTraj",
         OptionalInt.empty(),
-        15.10666,
+        14.58216,
         new Pose2d(3.57, 5, Rotation2d.fromRadians(0)),
         new Pose2d(2.6, 4.5, Rotation2d.fromRadians(-0.20944))
     );
@@ -135,22 +135,22 @@ public record ChoreoTraj(
     public static final ChoreoTraj FieldLeftShootTraj$1 = new ChoreoTraj(
         "FieldLeftShootTraj",
         OptionalInt.of(1),
-        4.7444999999999995,
+        4.38995,
         new Pose2d(6, 5.35, Rotation2d.fromRadians(0.7854)),
-        new Pose2d(7.75, 4, Rotation2d.fromRadians(-1.5708))
+        new Pose2d(7.75, 4.55, Rotation2d.fromRadians(-1.5708))
     );
     /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
     public static final ChoreoTraj FieldLeftShootTraj$2 = new ChoreoTraj(
         "FieldLeftShootTraj",
         OptionalInt.of(2),
-        6.58966,
-        new Pose2d(7.75, 4, Rotation2d.fromRadians(-1.5708)),
+        6.41971,
+        new Pose2d(7.75, 4.55, Rotation2d.fromRadians(-1.5708)),
         new Pose2d(2.6, 4.5, Rotation2d.fromRadians(-0.20944))
     );
     public static final ChoreoTraj FieldRightShootTraj = new ChoreoTraj(
         "FieldRightShootTraj",
         OptionalInt.empty(),
-        15.10666,
+        14.63126,
         new Pose2d(3.57, 3, Rotation2d.fromRadians(0)),
         new Pose2d(2.6, 3.5, Rotation2d.fromRadians(0.20944))
     );
@@ -166,16 +166,16 @@ public record ChoreoTraj(
     public static final ChoreoTraj FieldRightShootTraj$1 = new ChoreoTraj(
         "FieldRightShootTraj",
         OptionalInt.of(1),
-        4.7444999999999995,
+        4.4248400000000006,
         new Pose2d(6, 2.65, Rotation2d.fromRadians(-0.7854)),
-        new Pose2d(7.75, 4, Rotation2d.fromRadians(1.5708))
+        new Pose2d(7.75, 3.5, Rotation2d.fromRadians(1.5708))
     );
     /** ERROR: Can only use letters, 0-9, and _. Can't use $. Rename it in the Choreo app to fix this error. */
     public static final ChoreoTraj FieldRightShootTraj$2 = new ChoreoTraj(
         "FieldRightShootTraj",
         OptionalInt.of(2),
-        6.58966,
-        new Pose2d(7.75, 4, Rotation2d.fromRadians(1.5708)),
+        6.433919999999999,
+        new Pose2d(7.75, 3.5, Rotation2d.fromRadians(1.5708)),
         new Pose2d(2.6, 3.5, Rotation2d.fromRadians(0.20944))
     );
     public static final ChoreoTraj HubCenterShootTraj = new ChoreoTraj(
