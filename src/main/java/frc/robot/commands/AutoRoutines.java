@@ -208,38 +208,43 @@ public final class AutoRoutines {
 
     private AutoRoutine DepotShootRoutine() {
         final AutoRoutine routine = autoFactory.newRoutine("DepotShoot");
-        final AutoTrajectory startToApproachPose = DepotShootTraj$0.asAutoTraj(routine);
-        final AutoTrajectory approachPoseToCollectPose = DepotShootTraj$1.asAutoTraj(routine);
+        final AutoTrajectory startToDepotPose = DepotShootTraj$0.asAutoTraj(routine);
+        final AutoTrajectory depotPoseToCollectPose = DepotShootTraj$1.asAutoTraj(routine);
         final AutoTrajectory collectPoseToShootingPose = DepotShootTraj$2.asAutoTraj(routine);
 
         routine.active().onTrue(
-            Commands.sequence(
-                startToApproachPose.resetOdometry(),
-                startToApproachPose.cmd()
-            )    
+                Commands.sequence(
+                    startToDepotPose.resetOdometry(),
+                    startToDepotPose.cmd()
+                ) 
         );
-        
-        startToApproachPose.done().onTrue(
+
+        startToDepotPose.done().onTrue(
             Commands.waitUntil(hanger::isHomed).andThen(
                 Commands.sequence(
                     Commands.waitSeconds(kHomeWaitTime),
                     intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
-                    approachPoseToCollectPose.cmd()
-                )              
+
+                    Commands.deadline(
+                        depotPoseToCollectPose.cmd(),
+                        Commands.startEnd(
+                            () -> intake.set(Intake.Speed.INTAKE), 
+                            () -> intake.set(Intake.Speed.STOP),
+                            intake
+                        )
+                    )
+                )
             )
         );
 
-        approachPoseToCollectPose.done().onTrue(
-                Commands.sequence(
-                    Commands.waitSeconds(kDepotWaitTime),
-                    collectPoseToShootingPose.cmd()
-                )
+        depotPoseToCollectPose.done().onTrue(
+            collectPoseToShootingPose.cmd()
         );
 
         collectPoseToShootingPose.done().onTrue(
             Commands.sequence(
-                shooter.runOnce(() -> shooter.setDashboardTargetRPM(3700)),
-                hood.runOnce(() -> hood.setPosition(0.55)),
+                shooter.runOnce(() -> shooter.setDashboardTargetRPM(3300)),
+                hood.runOnce(() -> hood.setPosition(0.40)),
                 subsystemCommands.shootManually().withTimeout(kShootTime)
             )
         );
@@ -250,42 +255,45 @@ public final class AutoRoutines {
 
     private AutoRoutine DepotShootClimbRoutine() {
         final AutoRoutine routine = autoFactory.newRoutine("DepotShootClimb");
-        final AutoTrajectory startToApproachPose = DepotShootTraj$0.asAutoTraj(routine);
-        final AutoTrajectory approachPoseToCollectPose = DepotShootTraj$1.asAutoTraj(routine);
+        final AutoTrajectory startToDepotPose = DepotShootTraj$0.asAutoTraj(routine);
+        final AutoTrajectory depotPoseToCollectPose = DepotShootTraj$1.asAutoTraj(routine);
         final AutoTrajectory collectPoseToShootingPose = DepotShootTraj$2.asAutoTraj(routine);
         final AutoTrajectory shootingPoseToApproachPose = DepotShootTraj$3.asAutoTraj(routine);
         final AutoTrajectory approachPoseToClimbPose = DepotShootTraj$4.asAutoTraj(routine);
 
         routine.active().onTrue(
-            Commands.sequence(
-                startToApproachPose.resetOdometry(),
-                startToApproachPose.cmd()
-            )    
+                Commands.sequence(
+                    startToDepotPose.resetOdometry(),
+                    startToDepotPose.cmd()
+                ) 
         );
-        
-        startToApproachPose.done().onTrue(
-            Commands.sequence(
-                Commands.waitUntil(hanger::isHomed).andThen(
-                    Commands.sequence(
-                        Commands.waitSeconds(kHomeWaitTime),
-                        intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
-                        approachPoseToCollectPose.cmd()
-                    )              
+
+        startToDepotPose.done().onTrue(
+            Commands.waitUntil(hanger::isHomed).andThen(
+                Commands.sequence(
+                    Commands.waitSeconds(kHomeWaitTime),
+                    intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
+
+                    Commands.deadline(
+                        depotPoseToCollectPose.cmd(),
+                        Commands.startEnd(
+                            () -> intake.set(Intake.Speed.INTAKE), 
+                            () -> intake.set(Intake.Speed.STOP),
+                            intake
+                        )
+                    )
                 )
             )
         );
 
-        approachPoseToCollectPose.done().onTrue(
-                Commands.sequence(
-                    Commands.waitSeconds(kDepotWaitTime),
-                    collectPoseToShootingPose.cmd()
-                )
+        depotPoseToCollectPose.done().onTrue(
+            collectPoseToShootingPose.cmd()
         );
 
         collectPoseToShootingPose.done().onTrue(
             Commands.sequence(
-                shooter.runOnce(() -> shooter.setDashboardTargetRPM(3700)),
-                hood.runOnce(() -> hood.setPosition(0.55)),
+                shooter.runOnce(() -> shooter.setDashboardTargetRPM(3500)),
+                hood.runOnce(() -> hood.setPosition(0.45)),
                 subsystemCommands.shootManually().withTimeout(kShootTime),
                 intake.runOnce(() -> intake.set(Intake.Position.STOWED)),
                 shootingPoseToApproachPose.cmd()
@@ -485,43 +493,38 @@ public final class AutoRoutines {
     
     private AutoRoutine OutpostShootRoutine() {
         final AutoRoutine routine = autoFactory.newRoutine("OutpostShoot");
-        final AutoTrajectory startToOutpostPose = OutpostShootTraj$0.asAutoTraj(routine);
-        final AutoTrajectory outpostPoseToCollectPose = OutpostShootTraj$1.asAutoTraj(routine);
+        final AutoTrajectory startToApproachPose = OutpostShootTraj$0.asAutoTraj(routine);
+        final AutoTrajectory approachPoseToCollectPose = OutpostShootTraj$1.asAutoTraj(routine);
         final AutoTrajectory collectPoseToShootingPose = OutpostShootTraj$2.asAutoTraj(routine);
 
         routine.active().onTrue(
-                Commands.sequence(
-                    startToOutpostPose.resetOdometry(),
-                    startToOutpostPose.cmd()
-                ) 
+            Commands.sequence(
+                startToApproachPose.resetOdometry(),
+                startToApproachPose.cmd()
+            )    
         );
-
-        startToOutpostPose.done().onTrue(
+        
+        startToApproachPose.done().onTrue(
             Commands.waitUntil(hanger::isHomed).andThen(
                 Commands.sequence(
                     Commands.waitSeconds(kHomeWaitTime),
                     intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
-
-                    Commands.deadline(
-                        outpostPoseToCollectPose.cmd(),
-                        Commands.startEnd(
-                            () -> intake.set(Intake.Speed.INTAKE), 
-                            () -> intake.set(Intake.Speed.STOP),
-                            intake
-                        )
-                    )
-                )
+                    approachPoseToCollectPose.cmd()
+                )              
             )
         );
 
-        outpostPoseToCollectPose.done().onTrue(
-            collectPoseToShootingPose.cmd()
+        approachPoseToCollectPose.done().onTrue(
+                Commands.sequence(
+                    Commands.waitSeconds(kDepotWaitTime),
+                    collectPoseToShootingPose.cmd()
+                )
         );
 
         collectPoseToShootingPose.done().onTrue(
             Commands.sequence(
-                shooter.runOnce(() -> shooter.setDashboardTargetRPM(3300)),
-                hood.runOnce(() -> hood.setPosition(0.40)),
+                shooter.runOnce(() -> shooter.setDashboardTargetRPM(3700)),
+                hood.runOnce(() -> hood.setPosition(0.55)),
                 subsystemCommands.shootManually().withTimeout(kShootTime)
             )
         );
@@ -532,45 +535,42 @@ public final class AutoRoutines {
 
     private AutoRoutine OutpostShootClimbRoutine() {
         final AutoRoutine routine = autoFactory.newRoutine("OutpostShootClimb");
-        final AutoTrajectory startToOutpostPose = OutpostShootTraj$0.asAutoTraj(routine);
-        final AutoTrajectory outpostPoseToCollectPose = OutpostShootTraj$1.asAutoTraj(routine);
+        final AutoTrajectory startToApproachPose = OutpostShootTraj$0.asAutoTraj(routine);
+        final AutoTrajectory approachPoseToCollectPose = OutpostShootTraj$1.asAutoTraj(routine);
         final AutoTrajectory collectPoseToShootingPose = OutpostShootTraj$2.asAutoTraj(routine);
         final AutoTrajectory shootingPoseToApproachPose = OutpostShootTraj$3.asAutoTraj(routine);
         final AutoTrajectory approachPoseToClimbPose = OutpostShootTraj$4.asAutoTraj(routine);
 
         routine.active().onTrue(
-                Commands.sequence(
-                    startToOutpostPose.resetOdometry(),
-                    startToOutpostPose.cmd()
-                ) 
+            Commands.sequence(
+                startToApproachPose.resetOdometry(),
+                startToApproachPose.cmd()
+            )    
         );
-
-        startToOutpostPose.done().onTrue(
-            Commands.waitUntil(hanger::isHomed).andThen(
-                Commands.sequence(
-                    Commands.waitSeconds(kHomeWaitTime),
-                    intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
-
-                    Commands.deadline(
-                        outpostPoseToCollectPose.cmd(),
-                        Commands.startEnd(
-                            () -> intake.set(Intake.Speed.INTAKE), 
-                            () -> intake.set(Intake.Speed.STOP),
-                            intake
-                        )
-                    )
+        
+        startToApproachPose.done().onTrue(
+            Commands.sequence(
+                Commands.waitUntil(hanger::isHomed).andThen(
+                    Commands.sequence(
+                        Commands.waitSeconds(kHomeWaitTime),
+                        intake.runOnce(() -> intake.set(Intake.Position.INTAKE)),
+                        approachPoseToCollectPose.cmd()
+                    )              
                 )
             )
         );
 
-        outpostPoseToCollectPose.done().onTrue(
-            collectPoseToShootingPose.cmd()
+        approachPoseToCollectPose.done().onTrue(
+                Commands.sequence(
+                    Commands.waitSeconds(kDepotWaitTime),
+                    collectPoseToShootingPose.cmd()
+                )
         );
 
         collectPoseToShootingPose.done().onTrue(
             Commands.sequence(
-                shooter.runOnce(() -> shooter.setDashboardTargetRPM(3500)),
-                hood.runOnce(() -> hood.setPosition(0.45)),
+                shooter.runOnce(() -> shooter.setDashboardTargetRPM(3700)),
+                hood.runOnce(() -> hood.setPosition(0.55)),
                 subsystemCommands.shootManually().withTimeout(kShootTime),
                 intake.runOnce(() -> intake.set(Intake.Position.STOWED)),
                 shootingPoseToApproachPose.cmd()

@@ -16,4 +16,20 @@ public class Landmarks {
         }
         return new Translation2d(Inches.of(469.115), Inches.of(158.845));
     }
+
+    public static Translation2d depotPosition() {
+        final Optional<Alliance> alliance = DriverStation.getAlliance();
+        if (alliance.isPresent() && alliance.get() == Alliance.Blue) {
+            return new Translation2d(Inches.of(78.7402), Inches.of(236.22));
+        }
+        return new Translation2d(Inches.of(570.8661), Inches.of(78.7402));
+    }
+
+    public static Translation2d outpostPosition() {
+        final Optional<Alliance> alliance = DriverStation.getAlliance();
+        if (alliance.isPresent() && alliance.get() == Alliance.Blue) {
+            return new Translation2d(Inches.of(78.7402), Inches.of(78.7402));
+        }
+        return new Translation2d(Inches.of(570.8661), Inches.of(236.22));
+    }
 }

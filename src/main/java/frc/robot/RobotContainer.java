@@ -112,8 +112,9 @@ public class RobotContainer {
         mech.rightTrigger().whileTrue(subsystemCommands.aimAndShoot());
         mech.rightBumper().whileTrue(subsystemCommands.shootManually());
         mech.leftTrigger().whileTrue(intake.intakeCommand());
-        mech.leftBumper().onTrue(intake.runOnce(() -> intake.set(Intake.Position.STOWED)));
-        mech.a().whileTrue(reverseColumnCommand);
+        mech.leftBumper().onTrue(intake.runOnce(() -> intake.set(Intake.Position.RAISED)));
+        mech.x().onTrue(intake.runOnce(() -> intake.set(Intake.Position.STOWED)));
+        mech.b().whileTrue(reverseColumnCommand);
         
         driver.povUp().onTrue(hanger.positionCommand(Hanger.Position.HANGING));
         driver.povDown().onTrue(hanger.positionCommand(Hanger.Position.HUNG));

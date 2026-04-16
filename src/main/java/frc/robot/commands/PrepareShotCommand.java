@@ -14,6 +14,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Landmarks;
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Shooter;
 
@@ -65,14 +66,38 @@ public class PrepareShotCommand extends Command {
         return Meters.of(robotPosition.getDistance(hubPosition));
     }
 
+    private Distance getDistanceToDepot() {
+        final Translation2d robotPosition = robotPoseSupplier.get().getTranslation();
+        final Translation2d hubPosition = Landmarks.depotPosition();
+        return Meters.of(robotPosition.getDistance(hubPosition));
+    }
+
+    private Distance getDistanceToOutpost() {
+        final Translation2d robotPosition = robotPoseSupplier.get().getTranslation();
+        final Translation2d hubPosition = Landmarks.outpostPosition();
+        return Meters.of(robotPosition.getDistance(hubPosition));
+    }
+
     @Override
     public void execute() {
-        final Distance distanceToHub = getDistanceToHub();
-        final Shot shot = distanceToShotMap.get(distanceToHub);
+        final Distance distanceToTarget;
+        if (RobotContainer.mech.a().getAsBoolean()){
+            if (getDistanceToDepot().in(Inches) < getDistanceToOutpost().in(Inches)) {
+                distanceToTarget = getDistanceToDepot();
+            }
+            else {
+                distanceToTarget = getDistanceToOutpost();
+            }
+        } 
+        else {
+            distanceToTarget = getDistanceToHub();
+        }
+        
+        final Shot shot = distanceToShotMap.get(distanceToTarget);
         shooter.setRPM(shot.shooterRPM);
         shooter.setDashboardTargetRPM(shot.shooterRPM);
         hood.setPosition(shot.hoodPosition);
-        SmartDashboard.putNumber("Distance to Hub (inches)", distanceToHub.in(Inches));
+        SmartDashboard.putNumber("Distance to Hub (inches)", distanceToTarget.in(Inches));
     }
 
     @Override

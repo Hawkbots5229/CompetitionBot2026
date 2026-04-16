@@ -73,11 +73,11 @@ public final class SubsystemCommands {
         final AimAndDriveCommand aimAndDriveCommand = new AimAndDriveCommand(swerve, forwardInput, leftInput);
         final PrepareShotCommand prepareShotCommand = new PrepareShotCommand(shooter, hood, () -> swerve.getState().Pose);
         return Commands.parallel(
-            aimAndDriveCommand,
-            Commands.waitSeconds(0.25)
-                .andThen(prepareShotCommand),
-            Commands.waitUntil(() -> aimAndDriveCommand.isAimed() && prepareShotCommand.isReadyToShoot())
-                .andThen(feed())
+                aimAndDriveCommand,
+                Commands.waitSeconds(0.125)
+                    .andThen(prepareShotCommand),
+                Commands.waitUntil(() -> aimAndDriveCommand.isAimed() && prepareShotCommand.isReadyToShoot())
+                    .andThen(feed())  
         );
     }
 
@@ -89,7 +89,7 @@ public final class SubsystemCommands {
 
     private Command feed() {
         return Commands.sequence(
-            Commands.waitSeconds(0.25),
+            Commands.waitSeconds(0.125),
             Commands.parallel(
                 feeder.feedCommand(),
                 Commands.waitSeconds(0.125)

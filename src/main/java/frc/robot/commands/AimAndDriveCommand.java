@@ -1,6 +1,8 @@
 package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
 
 import java.util.function.DoubleSupplier;
 
@@ -12,9 +14,11 @@ import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.Driving;
 import frc.robot.Landmarks;
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.Swerve;
 import frc.util.DriveInputSmoother;
 import frc.util.GeometryUtil;
@@ -63,15 +67,62 @@ public class AimAndDriveCommand extends Command {
         return hubDirectionInOperatorPerspective;
     }
 
+    private Rotation2d getDirectionToDepot() {
+        final Translation2d depotPosition = Landmarks.depotPosition();
+        final Translation2d robotPosition = swerve.getState().Pose.getTranslation();
+        final Rotation2d depotDirectionInBlueAlliancePerspective = depotPosition.minus(robotPosition).getAngle();
+        final Rotation2d depotDirectionInOperatorPerspective = depotDirectionInBlueAlliancePerspective.rotateBy(swerve.getOperatorForwardDirection());
+        return depotDirectionInOperatorPerspective;
+    }
+
+    private Rotation2d getDirectionToOutpost() {
+        final Translation2d outpostPosition = Landmarks.outpostPosition();
+        final Translation2d robotPosition = swerve.getState().Pose.getTranslation();
+        final Rotation2d outpostDirectionInBlueAlliancePerspective = outpostPosition.minus(robotPosition).getAngle();
+        final Rotation2d outpostDirectionInOperatorPerspective = outpostDirectionInBlueAlliancePerspective.rotateBy(swerve.getOperatorForwardDirection());
+        return outpostDirectionInOperatorPerspective;
+    }
+
+    private Distance getDistanceToDepot() {
+        final Translation2d robotPosition = swerve.getState().Pose.getTranslation();
+        final Translation2d hubPosition = Landmarks.depotPosition();
+        return Meters.of(robotPosition.getDistance(hubPosition));
+    }
+
+    private Distance getDistanceToOutpost() {
+        final Translation2d robotPosition = swerve.getState().Pose.getTranslation();
+        final Translation2d hubPosition = Landmarks.outpostPosition();
+        return Meters.of(robotPosition.getDistance(hubPosition));
+    }
+
     @Override
     public void execute() {
         final ManualDriveInput input = inputSmoother.getSmoothedInput();
-        swerve.setControl(
-            fieldCentricFacingAngleRequest
-                .withVelocityX(Driving.kMaxSpeed.times(input.forward))
-                .withVelocityY(Driving.kMaxSpeed.times(input.left))
-                .withTargetDirection(getDirectionToHub())
-        );
+        final Rotation2d targetDirection;
+
+        if (RobotContainer.mech.a().getAsBoolean()){
+            if (getDistanceToDepot().in(Inches) < getDistanceToOutpost().in(Inches)) {
+                targetDirection = getDirectionToDepot();
+            }
+            else {
+                targetDirection = getDirectionToOutpost();
+            }
+        } 
+        else {
+            targetDirection = getDirectionToHub();
+        }
+        if (isAimed()) {
+            swerve.xLockCommand();
+        }
+        else {
+
+            swerve.setControl(
+                fieldCentricFacingAngleRequest
+                    .withVelocityX(Driving.kMaxSpeed.times(input.forward))
+                    .withVelocityY(Driving.kMaxSpeed.times(input.left))
+                    .withTargetDirection(targetDirection)
+            );
+        }
     }
 
     @Override

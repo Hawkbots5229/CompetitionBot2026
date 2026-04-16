@@ -83,7 +83,17 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
      * @return Command to run
      */
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
+        
         return run(() -> this.setControl(requestSupplier.get()));
+    }
+
+    /**
+     * Returns a swerve request for the drive module states to point inward on the robot in an "X" fashion.
+     *
+     * @return Supplier<SwerveRequest>
+     */
+    public Command xLockCommand() {
+        return applyRequest(() -> new SwerveRequest.SwerveDriveBrake());
     }
 
     /**
