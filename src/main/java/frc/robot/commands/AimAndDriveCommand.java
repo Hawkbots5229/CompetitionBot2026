@@ -111,11 +111,10 @@ public class AimAndDriveCommand extends Command {
         else {
             targetDirection = getDirectionToHub();
         }
-        if (isAimed()) {
+        if (isAimed() && !RobotContainer.mech.a().getAsBoolean()) {
             swerve.xLockCommand();
         }
         else {
-
             swerve.setControl(
                 fieldCentricFacingAngleRequest
                     .withVelocityX(Driving.kMaxSpeed.times(input.forward))
